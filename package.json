@@ -7,6 +7,6 @@
   },
   "main": "server.js",
   "dependencies": {
-    "express": "~4.12.2",
+    "express": "~4.12.2"
   }
 }
