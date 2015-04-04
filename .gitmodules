@@ -1,0 +1,3 @@
+[submodule "public/knode"]
+	path = public/knode
+	url = https://github.com/marcodiiga/knode.git

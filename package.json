@@ -1,11 +1,11 @@
 {
   "name": "kbase",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "scripts": {
-    "start": "node server.js"
+    "start": "node kserver.js"
   },
-  "main": "server.js",
+  "main": "kserver.js",
   "dependencies": {
     "express": "~4.12.2"
   }
