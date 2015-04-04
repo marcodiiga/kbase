@@ -1,12 +1,14 @@
 var express = require('express');
 var app = express();
+var path = require('path');
 
 var html_dir = './public/'; // A convenient variable to refer to the public directory
 
 /////////////////
 // Load routes //
 /////////////////
-var routes = require('./routes/index');
+var Routes = require('./routes/index');
+var routes = new Routes (html_dir);
 
 
 /////////////////////////////////////
@@ -15,6 +17,8 @@ var routes = require('./routes/index');
 app.use('/', routes); // Redirect all '/'-level requests
 // Other routes here
 
+// Static content
+app.use (express.static( path.join (__dirname, 'public')));
 
 //////////////////////////////////////////////////
 // Start the server on RHC specific ip and port //
