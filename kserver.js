@@ -9,12 +9,13 @@ var html_dir = './public/'; // A convenient variable to refer to the public dire
 /////////////////
 var Routes = require('./routes/index');
 var routes = new Routes (html_dir);
-
+var nodesRoutes  = require('./routes/nodes');
 
 /////////////////////////////////////
 // Specify middleware mount points //
 /////////////////////////////////////
 app.use('/', routes); // Redirect all '/'-level requests
+app.use('/nodes', nodesRoutes); // Redirect all '/nodes'-level requests
 // Other routes here
 
 // Static content

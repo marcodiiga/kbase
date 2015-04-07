@@ -1,3 +1,4 @@
+// This module serves the /-level requests (i.e. the index page)
 module.exports = function Router (html_dir) {
   
   var express = require('express');

@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>KBase</title>
   
   <link href="knode/style.css" type="text/css" rel="stylesheet"/>
   <!-- jQuery and UI for draggable nodes -->
@@ -16,46 +17,25 @@
     var map;
     $(document).ready(function() {
 
-      map = $('#map').createNodeMap();
-      map.createNodes($('#ulList')).setScale(0.5);
+    map = $('#map').createNodeMap();
+    map.setScale(0.5);
+
+    // Ask for the root node in the database
+    $.ajax({
+      type: "POST",
+      url : "/nodes/getRoot",
+      success : function(response) {
+         alert(response);
+      }
+    });
+      
+      
+      
     });
   </script>
   
 </head>
 <body>
-  <div id="ulList">
-    <!-- TODO: generate this list dynamically -->
-    <ul>
-      <li><a id="root" href="root node">Root node</a>
-        <ul>
-          <li><a href="subnode 1">Subnode 1</a></li>
-          <li><a href="subnode 2">Subnode 2 (also a list)</a>
-            <ul>
-              <li><a href="subnode 2-1">Sub Subnode 2-1</a></li>
-              <li><a id="subsub22" href="subnode 2-2">Sub Subnode 2-2</a></li>
-              <li><a href="subnode 2-3">Sub Subnode 2-3</a></li>
-            </ul>
-          </li>
-          <li><a id="sub3" href="subnode 3">Subnode 3</a>
-            <ul>
-              <li><a href="subnode 2-1">Sub Subnode 3-1</a></li>
-              <li><a href="subnode 2-2">Sub Subnode 3-2</a></li>
-              <li><a href="subnode 2-2">Sub Subnode 3-3</a></li>
-              <li><a href="subnode 2-42">Sub Subnode 3-4</a></li>
-            </ul>
-          </li>
-          <li><a id="subnode4" href="subnode 4">Subnode 4</a>
-            <ul>
-              <li><a href="subnode 2-1">Sub Subnode 4-1</a></li>
-              <li><a href="subnode 2-2">Sub Subnode 4-2</a></li>
-              <li><a href="subnode 2-3">Sub Subnode 2-3</a></li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </div>
-  
   <div id="wrapper" style="transform-origin: 0% 0%; transform: scale(0.5); border: 2px solid black;
   overflow: hidden; height: 1200px; width:1200px;">
     <div id="map">
