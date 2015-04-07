@@ -14,23 +14,27 @@
   <script type="text/javascript" src="knode/nodemap.js"></script>
   
   <script type="text/javascript">
-    var map;
+    var map, rootNode;
     $(document).ready(function() {
 
-    map = $('#map').createNodeMap();
-    map.setScale(0.5);
+      map = $('#map').createNodeMap();
+      map.setScale(0.5);
 
-    // Ask for the root node in the database
-    $.ajax({
-      type: "POST",
-      url : "/nodes/getRoot",
-      success : function(response) {
-         alert(response);
-      }
-    });
-      
-      
-      
+      // Ask for the root node in the database
+      $.ajax({
+        type: "POST",
+        url : "/nodes/getRootNode",
+        success : function(response) {
+          if(response.length != 1) {
+            $.error ("Expected one root node for kbase, got length of "+response.length);
+            return;
+          }
+          var rootObj = response[0]; // {document, id, text}
+          // Create the root node
+          rootNode = map.createRootNode (rootObj.id, rootObj.document, rootObj.text);
+        }
+      });
+        
     });
   </script>
   

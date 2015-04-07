@@ -7,6 +7,7 @@
   },
   "main": "kserver.js",
   "dependencies": {
-    "express": "~4.12.2"
+    "express": "~4.12.3",
+    "mysql":   "~2.6.1"
   }
 }
