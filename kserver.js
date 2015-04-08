@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var path = require('path');
+var bodyParser = require('body-parser');
 
 var html_dir = './public/'; // A convenient variable to refer to the public directory
 
@@ -10,6 +11,9 @@ var html_dir = './public/'; // A convenient variable to refer to the public dire
 var Routes = require('./routes/index');
 var routes = new Routes (html_dir);
 var nodesRoutes  = require('./routes/nodes');
+
+// Initialize a json parser for the ajax requests routes (used in the routes)
+app.use(bodyParser.json()); // for parsing application/json
 
 /////////////////////////////////////
 // Specify middleware mount points //

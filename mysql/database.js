@@ -34,3 +34,20 @@ exports.getRootNode = function (callback) {
     });
   });
 };
+
+// Get the children nodes of a node. Requires a node id and a callback function with the following signature
+// callback (bool success, [json_object results])
+exports.getChildrenNodes = function (id, callback) {
+  // Select all the nodes that have the 'id' node as a parent
+  var sql = "SELECT nodes.* FROM kbase.connections INNER JOIN kbase.nodes ON connections.endNode = nodes.id WHERE connections.startNode=?";
+  // Ask the pool for a connection
+  pool.getConnection(function(err, connection) {
+    if(err) { console.log (err); callback (true); return; } // Failed
+    // Execute the query
+    connection.query (sql, [id], function(err, results) {
+      connection.release(); // Return the connection to the pool
+      if(err) { console.log (err); callback (true); return; }
+      callback(false, results);
+    });
+  });
+};

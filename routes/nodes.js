@@ -14,5 +14,13 @@ router.post("/getRootNode", function(req, res, next) {
     res.send (results); // Send back the results as JSON for the root node
   });
 });
+
+router.post("/getChildrenNodes", function(req, res, next) {
+  // Ask for the children of a given parent node
+  database.getChildrenNodes (req.body.id, function (err, results) {
+    if (err) { res.status(500).send ("Node root query failed"); return; }
+    res.send (results); // Send back the results as JSON for the root node
+  });
+});
   
 module.exports = router;
