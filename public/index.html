@@ -15,6 +15,9 @@
   
   <script type="text/javascript">
     
+    function nodeClicked (node) {
+      console.log ("node " + node.id + " has been clicked");
+    }
     function initializeMapWithRoot(map) {
       // Ask for the root node in the database
       $.ajax({
@@ -28,6 +31,7 @@
           var rootObj = response[0]; // {document, id, text}
           // Create the root node
           rootNode = map.createRootNode (rootObj.id, rootObj.document, rootObj.text);
+          rootNode.callback = nodeClicked;
           
           // Create the child nodes directly attached to the root
           $.ajax({
@@ -37,7 +41,8 @@
             contentType: 'application/json',
             success : function(response) {
               $.each (response, function () {
-                rootNode.addChildNode(this.id, this.document, this.text);
+                var newNode = rootNode.addChildNode(this.id, this.document, this.text);
+                newNode.callback = nodeClicked;
               });
             }
           });
@@ -47,20 +52,14 @@
     
     $(document).ready(function() {
       var map, rootNode;
-      map = $('#map').createNodeMap();
-      map.setScale(0.6);
+      map = $('#map').createNodeMap({scaleLevel: 0.55});
       rootNode = initializeMapWithRoot(map); 
     });
   </script>
   
 </head>
 <body>
-  <div style="overflow: hidden; width:470px; height:450px; border: 2px solid black;">
-    <div id="wrapper" style="transform-origin: 0% 0%; transform: scale(0.6);
-    overflow: hidden; height: 800px; width:800px;">
-      <div id="map">
-      </div>
-    </div>
+  <div id="map" style="width:470px; height:450px; border: 2px solid black;">
   </div>
 </body>
 </html>
