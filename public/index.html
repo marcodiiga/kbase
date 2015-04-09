@@ -19,6 +19,32 @@
     
     var map, rootNode;
     
+    function setDocumentHtml (document, htmlText) {
+      $('#document').queue(function () {
+        $('#document').html (htmlText);
+        $('#document').prepend ('<div id="searchBoxPlaceHolder"></div>'); // Makes room for the searchBox
+        // Enqueue the animation for the div's height to fit the entire content. This is necessary since scrollHeight
+        // could not be calculated before. Now it's a valid value for the new document
+        $('#document').animate({
+          height: $('#document')[0].scrollHeight,
+          opacity: 1
+        }, 500);
+        $(this).dequeue(); // Continue with the next queued animation (the one just enqueued)
+      });      
+    }
+    
+    function performPOSTDocumentRequest (document, callback) { // Load via ajax a requested document
+      $.ajax({ // Ask for the parents of a node in the database
+        type: "POST",
+        url : "/documents/getDocument",
+        data: JSON.stringify({document: document}),
+        contentType: 'application/json',
+        success : function(response) {
+          callback (response);
+        }
+      });
+    }
+    
     function performPOSTQueryOnKbase (node, uri, callback) {
       $.ajax({ // Ask for the parents of a node in the database
         type: "POST",
@@ -34,37 +60,47 @@
     }
     
     function nodeClicked (node) { // Click handler for nodes
-      // Get the parent nodes in the map (not in the kbase)
-      var parents = node.getParentsInMap();
+    
+      // Only case we don't hide the current document is when we already have the requested one
+      if ($.data($('#document')[0], "currentDocument") != node.href) {
+        $('#document').animate({
+          height:  0,
+          opacity: 0
+        }, 500);
+      }
       
       // Make this the new root node
       node.markAsSelected ();
       
-      // Remove all the map nodes which aren't parent or this one
+      // Remove all the map nodes which aren't this one
       $.each (map.getNodes(), function () {
-        if (parents.indexOf (this) == -1 && this != node)
+        if (this != node)
           this.deleteNode ();
       });
       
       // Get all this node's parents and children through an ajax query
       performPOSTQueryOnKbase (node, "/nodes/getParentNodes", function (id, document, text) {
-        // If this parent wasn't in the map before..
-        var notAlreadyPresentInMap = true;
-        $.each (parents, function () {
-          if (this.id === id) {
-            notAlreadyPresentInMap = false;
-            return false; // Break the jquery loop
-          }
-        });
-        if (notAlreadyPresentInMap === true)
-          node.addChildNode (id, document, text).callback = nodeClicked;
+        node.addChildNode (id, document, text).callback = nodeClicked;
       });
       performPOSTQueryOnKbase (node, "/nodes/getChildrenNodes", function (id, document, text) {
         node.addChildNode (id, document, text).callback = nodeClicked;
       });
       
-      // TODO: handle document asynchronous loading if there's any
+      // If there's any href (not already loaded), load the document asked
+      if (node.href != undefined && $.data($('#document')[0], "currentDocument") != node.href) {
+        performPOSTDocumentRequest (node.href, function (data) {
+          setDocumentHtml (node.href, data);
+        });
+      }
+
+      // Whatever the document asked (even undefined), store it into an HTML5 data attribute
+      if (node.href != undefined)
+        $.data($('#document')[0], "currentDocument", node.href);
+      else
+        $.data($('#document')[0], "currentDocument", null);
     }
+    
+    
     function initializeMapWithRoot(map) { // First-time initialize the map with the kbase root      
       $.ajax({ // Ask for the root node in the database
         type: "POST",
@@ -104,17 +140,20 @@
   
 </head>
 <body>
-  <div class="container">
-    <div id="map">
+  <div class="entirePage">
+    <div id="searchBox">
+      <div id="map"></div>
     </div>
-    <div id="document">lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
-    lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
-    lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
-    lots of text here<br/>lots of text here<br/> still lots of text...
-    lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
-    lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
-    lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
-    lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+    <div id="document">
+      <div id="searchBoxPlaceHolder"></div>
+      <!-- The document text will be loaded in here -->lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+      lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+      lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+      lots of text here<br/>lots of text here<br/> still lots of text...
+      lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+      lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+      lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+      lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
     </div>
   </div>
 </body>

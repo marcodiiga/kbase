@@ -11,6 +11,8 @@ var html_dir = './public/'; // A convenient variable to refer to the public dire
 var Routes = require('./routes/index');
 var routes = new Routes (html_dir);
 var nodesRoutes  = require('./routes/nodes');
+var DocumentsKeeper = require('./routes/documents');
+var documentsRoutes  = new DocumentsKeeper(html_dir);
 
 // Initialize a json parser for the ajax requests routes (used in the routes)
 app.use(bodyParser.json()); // for parsing application/json
@@ -20,6 +22,7 @@ app.use(bodyParser.json()); // for parsing application/json
 /////////////////////////////////////
 app.use('/', routes); // Redirect all '/'-level requests
 app.use('/nodes', nodesRoutes); // Redirect all '/nodes'-level requests
+app.use('/documents', documentsRoutes); // Redirect all '/documents'-level requests
 // Other routes here
 
 // Static content
