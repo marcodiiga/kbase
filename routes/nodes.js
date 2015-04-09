@@ -15,10 +15,18 @@ router.post("/getRootNode", function(req, res, next) {
   });
 });
 
-router.post("/getChildrenNodes", function(req, res, next) {
   // Ask for the children of a given parent node
+router.post("/getChildrenNodes", function(req, res, next) {
   database.getChildrenNodes (req.body.id, function (err, results) {
-    if (err) { res.status(500).send ("Node root query failed"); return; }
+    if (err) { res.status(500).send ("Node query failed"); return; }
+    res.send (results); // Send back the results as JSON for the root node
+  });
+});
+
+// Ask for the parents of a given node
+router.post("/getParentNodes", function(req, res, next) {
+  database.getParentNodes (req.body.id, function (err, results) {
+    if (err) { res.status(500).send ("Node query failed"); return; }
     res.send (results); // Send back the results as JSON for the root node
   });
 });

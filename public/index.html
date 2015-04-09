@@ -15,12 +15,56 @@
   
   <script type="text/javascript">
     
-    function nodeClicked (node) {
-      console.log ("node " + node.id + " has been clicked");
+    var map, rootNode;
+    
+    function performPostQueryOnKbase (node, uri, callback) {
+      $.ajax({ // Ask for the parents of a node in the database
+        type: "POST",
+        url : uri,
+        data: JSON.stringify({id: node.id}),
+        contentType: 'application/json',
+        success : function(response) {
+          $.each (response, function () {
+            callback (this.id, this.document, this.text);
+          });
+        }
+      });
     }
-    function initializeMapWithRoot(map) {
-      // Ask for the root node in the database
-      $.ajax({
+    
+    function nodeClicked (node) { // Click handler for nodes
+      // Get the parent nodes in the map (not in the kbase)
+      var parents = node.getParentsInMap();
+      
+      // Make this the new root node
+      node.markAsSelected ();
+      
+      // Remove all the map nodes which aren't parent or this one
+      $.each (map.getNodes(), function () {
+        if (parents.indexOf (this) == -1 && this != node)
+          this.deleteNode ();
+      });
+      
+      // Get all this node's parents and children through an ajax query
+      performPostQueryOnKbase (node, "/nodes/getParentNodes", function (id, document, text) {
+        // If this parent wasn't in the map before..
+        var notAlreadyPresentInMap = true;
+        $.each (parents, function () {
+          if (this.id === id) {
+            notAlreadyPresentInMap = false;
+            return false; // Break the jquery loop
+          }
+        });
+        if (notAlreadyPresentInMap === true)
+          node.addChildNode (id, document, text).callback = nodeClicked;
+      });
+      performPostQueryOnKbase (node, "/nodes/getChildrenNodes", function (id, document, text) {
+        node.addChildNode (id, document, text).callback = nodeClicked;
+      });
+      
+      // TODO: handle document asynchronous loading if there's any
+    }
+    function initializeMapWithRoot(map) { // First-time initialize the map with the kbase root      
+      $.ajax({ // Ask for the root node in the database
         type: "POST",
         url : "/nodes/getRootNode",
         success : function(response) {
@@ -50,8 +94,7 @@
       });
     }
     
-    $(document).ready(function() {
-      var map, rootNode;
+    $(document).ready(function() {      
       map = $('#map').createNodeMap({scaleLevel: 0.55});
       rootNode = initializeMapWithRoot(map); 
     });
