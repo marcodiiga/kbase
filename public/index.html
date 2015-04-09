@@ -17,7 +17,7 @@
   
   <script type="text/javascript">
     
-    var map, rootNode;
+    var map, rootNode, pendingAjaxCalls = 0;
     
     function setDocumentHtml (document, htmlText) {
       $('#document').queue(function () {
@@ -34,6 +34,7 @@
     }
     
     function performPOSTDocumentRequest (document, callback) { // Load via ajax a requested document
+      pendingAjaxCalls++;
       $.ajax({ // Ask for the parents of a node in the database
         type: "POST",
         url : "/documents/getDocument",
@@ -41,11 +42,17 @@
         contentType: 'application/json',
         success : function(response) {
           callback (response);
+          pendingAjaxCalls--;
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+          $.error ("Ajax call error: (" + xhr.status + ") " + thrownError);
+          pendingAjaxCalls--;
         }
       });
     }
     
     function performPOSTQueryOnKbase (node, uri, callback) {
+      pendingAjaxCalls++;
       $.ajax({ // Ask for the parents of a node in the database
         type: "POST",
         url : uri,
@@ -55,12 +62,21 @@
           $.each (response, function () {
             callback (this.id, this.document, this.text);
           });
+          pendingAjaxCalls--;
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+          $.error ("Ajax call error: (" + xhr.status + ") " + thrownError);
+          pendingAjaxCalls--;
         }
       });
     }
     
     function nodeClicked (node) { // Click handler for nodes
     
+      if (pendingAjaxCalls > 0)
+        return; // If ajax calls are slow, we can't proceed (we might add duplicate nodes due to
+                // dangling references and asynchronous callbacks)
+        
       // Only case we don't hide the current document is when we already have the requested one
       if ($.data($('#document')[0], "currentDocument") != node.href) {
         $('#document').animate({
@@ -101,7 +117,8 @@
     }
     
     
-    function initializeMapWithRoot(map) { // First-time initialize the map with the kbase root      
+    function initializeMapWithRoot(map) { // First-time initialize the map with the kbase root  
+      pendingAjaxCalls++;
       $.ajax({ // Ask for the root node in the database
         type: "POST",
         url : "/nodes/getRootNode",
@@ -114,8 +131,10 @@
           // Create the root node
           rootNode = map.createRootNode (rootObj.id, rootObj.document, rootObj.text);
           rootNode.callback = nodeClicked;
+          pendingAjaxCalls--;
           
           // Create the child nodes directly attached to the root
+          pendingAjaxCalls++;
           $.ajax({
             type: "POST",
             url : "/nodes/getChildrenNodes",
@@ -126,8 +145,17 @@
                 var newNode = rootNode.addChildNode(this.id, this.document, this.text);
                 newNode.callback = nodeClicked;
               });
+              pendingAjaxCalls--;
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+              $.error ("Ajax call error: (" + xhr.status + ") " + thrownError);
+              pendingAjaxCalls--;
             }
           });
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+          $.error ("Ajax call error: (" + xhr.status + ") " + thrownError);
+          pendingAjaxCalls--;
         }
       });
     }
