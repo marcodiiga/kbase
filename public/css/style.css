@@ -1,0 +1,15 @@
+div.container { /* The all-containing div*/
+  width: 100%;
+}
+
+div#map { /* The map containing div*/
+  float: left;
+  width:470px; 
+  height:450px; 
+  border: 2px solid black;
+}
+
+div#document { /* The document containing div */
+  width: auto;
+  border: 2px solid red;
+}

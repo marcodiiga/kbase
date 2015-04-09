@@ -3,7 +3,9 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <title>KBase</title>
+  <link href="css/style.css" type="text/css" rel="stylesheet"/>
   
+  <!-- knode style sheet -->
   <link href="knode/style.css" type="text/css" rel="stylesheet"/>
   <!-- jQuery and UI for draggable nodes -->
   <script type="text/javascript" src="knode/jquery/2.1.3/jquery.min.js"></script>
@@ -17,7 +19,7 @@
     
     var map, rootNode;
     
-    function performPostQueryOnKbase (node, uri, callback) {
+    function performPOSTQueryOnKbase (node, uri, callback) {
       $.ajax({ // Ask for the parents of a node in the database
         type: "POST",
         url : uri,
@@ -45,7 +47,7 @@
       });
       
       // Get all this node's parents and children through an ajax query
-      performPostQueryOnKbase (node, "/nodes/getParentNodes", function (id, document, text) {
+      performPOSTQueryOnKbase (node, "/nodes/getParentNodes", function (id, document, text) {
         // If this parent wasn't in the map before..
         var notAlreadyPresentInMap = true;
         $.each (parents, function () {
@@ -57,7 +59,7 @@
         if (notAlreadyPresentInMap === true)
           node.addChildNode (id, document, text).callback = nodeClicked;
       });
-      performPostQueryOnKbase (node, "/nodes/getChildrenNodes", function (id, document, text) {
+      performPOSTQueryOnKbase (node, "/nodes/getChildrenNodes", function (id, document, text) {
         node.addChildNode (id, document, text).callback = nodeClicked;
       });
       
@@ -102,7 +104,18 @@
   
 </head>
 <body>
-  <div id="map" style="width:470px; height:450px; border: 2px solid black;">
+  <div class="container">
+    <div id="map">
+    </div>
+    <div id="document">lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+    lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+    lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+    lots of text here<br/>lots of text here<br/> still lots of text...
+    lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+    lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+    lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+    lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+    </div>
   </div>
 </body>
 </html>
