@@ -2,9 +2,7 @@ div.entirePage { /* The all-containing div*/
   width: 100%;
 }
 
-div#searchBoxPlaceHolder {
-  width: 474px;
-  height: 454px;
+div#searchBoxPlaceHolder { /* Height and width will have to be set by code */
   margin: 0px 5px 0px 0px;
   float: left;
 }
@@ -14,10 +12,63 @@ div#searchBox { /* The map and search box containing div*/
   position: absolute;
 }
 
+div#quickFindDiv { /* The quicksearch bar containing div*/
+  border: 2px solid rgba(0,0,0,0.2);
+  border-radius: 15px;
+  margin-bottom: 5px;
+  overflow:hidden;
+}
+div#quickFindDiv>input {
+  width: 100%;
+  border: none;
+  padding: 2px;
+  margin: 5px; /*DEBUG*/
+  font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+}
+div#quickFindDiv>input:focus {
+  outline-width: 0;
+}
+
+/* Quickfind bar autocompletion styles */
+.ui-helper-hidden-accessible { display:none; }
+.ui-autocomplete {
+  z-index:200; /* Above the map nodes */
+  border-radius: 5px;
+  position: absolute;
+  list-style: none;
+  font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+  background: -moz-linear-gradient(left,  rgba(229,229,229,0.95) 0%, rgba(242,242,242,0.95) 50%, rgba(255,255,255,0.52) 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(229,229,229,0.95)), color-stop(50%,rgba(242,242,242,0.95)), color-stop(100%,rgba(255,255,255,0.52))); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(left,  rgba(229,229,229,0.95) 0%,rgba(242,242,242,0.95) 50%,rgba(255,255,255,0.52) 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(left,  rgba(229,229,229,0.95) 0%,rgba(242,242,242,0.95) 50%,rgba(255,255,255,0.52) 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(left,  rgba(229,229,229,0.95) 0%,rgba(242,242,242,0.95) 50%,rgba(255,255,255,0.52) 100%); /* IE10+ */
+  background: linear-gradient(to right,  rgba(229,229,229,0.95) 0%,rgba(242,242,242,0.95) 50%,rgba(255,255,255,0.52) 100%); /* W3C */
+}
+.ui-widget-content {
+  list-style:none;
+  padding-left:0px;
+}
+.ui-widget-content>* {
+  padding-left: 5px;
+}
+.ui-state-hover, 
+.ui-widget-content .ui-state-hover, 
+.ui-widget-header .ui-state-hover, 
+.ui-state-focus, 
+.ui-widget-content .ui-state-focus, 
+.ui-widget-header .ui-state-focus {
+    background: rgba(255,138,0,0.2);
+    border-radius: 5px;
+    border: none;
+    color:#000;
+    font-weight: normal;
+    cursor: default;
+}
+
 div#map { /* The map containing div*/
   width:470px; 
   height:450px; 
-  border: 2px solid black;
+  border: 2px solid rgba(0,0,0,0.2);
 }
 
 div#document { /* The document containing div */

@@ -21,8 +21,10 @@
     
     function setDocumentHtml (document, htmlText) {
       $('#document').queue(function () {
+        // Save the placeholder, this will have to be reinserted after the new document has been loaded
+        var $placeHolder = $('#searchBoxPlaceHolder').clone();
         $('#document').html (htmlText);
-        $('#document').prepend ('<div id="searchBoxPlaceHolder"></div>'); // Makes room for the searchBox
+        $('#document').prepend ($placeHolder); // Makes room for the searchBox by reinserting the placeholder
         // Enqueue the animation for the div's height to fit the entire content. This is necessary since scrollHeight
         // could not be calculated before. Now it's a valid value for the new document
         $('#document').animate({
@@ -51,17 +53,21 @@
       });
     }
     
-    function performPOSTQueryOnKbase (node, uri, callback) {
+    function performPOSTQueryOnKbase (nodeId, uri, callback, callbackIfNoResults) {
       pendingAjaxCalls++;
-      $.ajax({ // Ask for the parents of a node in the database
+      $.ajax({ // Ask for a query on a node in the database
         type: "POST",
         url : uri,
-        data: JSON.stringify({id: node.id}),
+        data: JSON.stringify({id: nodeId}),
         contentType: 'application/json',
         success : function(response) {
-          $.each (response, function () {
-            callback (this.id, this.document, this.text);
-          });
+          if (response.length === 0 && typeof callbackIfNoResults != 'undefined')
+            callbackIfNoResults ();
+          else {
+            $.each (response, function () {
+              callback (this.id, this.document, this.text);
+            });
+          }
           pendingAjaxCalls--;
         },
         error: function(xhr, ajaxOptions, thrownError) {
@@ -71,7 +77,38 @@
       });
     }
     
+    // Load all the parents and children of a node and add them to the map
+    function loadNodeParentsAndChildren (node) {
+      // Get all this node's parents and children through an ajax query
+      performPOSTQueryOnKbase (node.id, "/nodes/getParentNodes", function (id, document, text) {
+        var parentNode = node.addChildNode (id, document, text);
+        parentNode.callback = nodeClicked;
+        parentNode.$element.addClass ('parent');
+      });
+      performPOSTQueryOnKbase (node.id, "/nodes/getChildrenNodes", function (id, document, text) {
+        node.addChildNode (id, document, text).callback = nodeClicked;
+      });
+    }
+    
+    // Load a node's document if it isn't already loaded
+    function loadNodeDocument (node) {
+      // If there's any href (not already loaded), load the document asked
+      if (node.href != undefined && $.data($('#document')[0], "currentDocument") != node.href) {
+        performPOSTDocumentRequest (node.href, function (data) {
+          setDocumentHtml (node.href, data);
+        });
+      }
+
+      // Whatever the document asked (even undefined), store it into an HTML5 data attribute
+      if (node.href != undefined)
+        $.data($('#document')[0], "currentDocument", node.href);
+      else
+        $.data($('#document')[0], "currentDocument", null);
+    }
+    
     function nodeClicked (node) { // Click handler for nodes
+    
+      $('#quicksearchBar').val(''); // Clear quicksearch query
     
       if (pendingAjaxCalls > 0)
         return; // If ajax calls are slow, we can't proceed (we might add duplicate nodes due to
@@ -95,28 +132,32 @@
           this.deleteNode ();
       });
       
-      // Get all this node's parents and children through an ajax query
-      performPOSTQueryOnKbase (node, "/nodes/getParentNodes", function (id, document, text) {
-        var parentNode = node.addChildNode (id, document, text);
-        parentNode.callback = nodeClicked;
-        parentNode.$element.addClass ('parent');
-      });
-      performPOSTQueryOnKbase (node, "/nodes/getChildrenNodes", function (id, document, text) {
-        node.addChildNode (id, document, text).callback = nodeClicked;
-      });
+      loadNodeParentsAndChildren (node);
       
-      // If there's any href (not already loaded), load the document asked
-      if (node.href != undefined && $.data($('#document')[0], "currentDocument") != node.href) {
-        performPOSTDocumentRequest (node.href, function (data) {
-          setDocumentHtml (node.href, data);
-        });
-      }
-
-      // Whatever the document asked (even undefined), store it into an HTML5 data attribute
-      if (node.href != undefined)
-        $.data($('#document')[0], "currentDocument", node.href);
-      else
-        $.data($('#document')[0], "currentDocument", null);
+      loadNodeDocument (node);
+    }
+    
+    function loadNewRootNode (id) { // Load a completely new root node and all its associated data
+    
+      if (pendingAjaxCalls > 0)
+        return; // If ajax calls are slow, we can't proceed (we might add duplicate nodes due to
+                // dangling references and asynchronous callbacks)
+                
+      // Get the requested node information
+      performPOSTQueryOnKbase (id, "/nodes/getNodeData", function (id, document, text) {
+        
+        // Create this node as the root
+        rootNode = map.createRootNode (id, document, text);
+        // Add every other related node
+        loadNodeParentsAndChildren (rootNode);
+        // Finally load the new document
+        loadNodeDocument (rootNode);
+        
+      }, function () {
+        $.error ("Error: no node with this id exists in the kbase: " + id);
+        return;
+      });
+    
     }
     
     
@@ -141,8 +182,8 @@
           $.ajax({
             type: "POST",
             url : "/nodes/getChildrenNodes",
-            data: JSON.stringify({id: rootNode.id}),
             contentType: 'application/json',
+            data: JSON.stringify({id: rootNode.id}),
             success : function(response) {
               $.each (response, function () {
                 var newNode = rootNode.addChildNode(this.id, this.document, this.text);
@@ -163,9 +204,71 @@
       });
     }
     
-    $(document).ready(function() {      
+function SelectText(element) {
+    var text = document.getElementById(element);
+    if ($.browser.msie) {
+        var range = document.body.createTextRange();
+        range.moveToElementText(text);
+        range.select();
+    } else if ($.browser.mozilla || $.browser.opera) {
+        var selection = window.getSelection();
+        var range = document.createRange();
+        range.selectNodeContents(text);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    } else if ($.browser.safari) {
+        var selection = window.getSelection();
+        selection.setBaseAndExtent(text, 0, text, 1);
+    }
+}
+    
+    $(document).ready(function() { 
+      // Create the node map - TODO GET
       map = $('#map').createNodeMap({scaleLevel: 0.55});
-      rootNode = initializeMapWithRoot(map); 
+      rootNode = initializeMapWithRoot(map);
+      
+      // Scale the placeholder to the width and height of the searchBox div
+      $('#searchBoxPlaceHolder').css('height', $('#searchBox')[0].scrollHeight + 'px');
+      $('#searchBoxPlaceHolder').css('width', $('#searchBox')[0].scrollWidth + 'px');
+      
+      // Add ajax autocomplete capabilities to the quicksearch bar
+      $("#quicksearchBar").autocomplete({ 
+        source: function (request, response) {
+          $.ajax({
+            type: "POST",
+            url : "/nodes/getNodesMatchingQuery",
+            contentType: 'application/json',
+            data: JSON.stringify({query: request.term}),
+            success: function(data) {
+              var list = [];
+              $.each (data, function () {
+                list.push ({id: this.id, value: this.text});
+              });
+              response (list);
+            },            
+            error: function(xhr, ajaxOptions, thrownError) {
+              $.error ("Quicksearch bar ajax call error: (" + xhr.status + ") " + thrownError);
+            }
+          });
+        },
+        autoFocus: true,
+        appendTo: '#quickFindDiv',
+        select: function (event, ui) {
+          // An element was selected - load the requested root node
+          var id = ui.item.id;
+          map.clearMap (); // Clear the entire map area
+          $('#document').animate({ // Hide any document loaded
+            height:  0,
+            opacity: 0
+          }, 500);
+          loadNewRootNode (id); // Proceed to repopulate the map with the new root          
+        },
+        close: function (event, ui) { // Event when the menu is closed down
+          $('#quicksearchBar').select(); // Select the text inside the quicksearch bar when finished
+        }
+      });
+      
+      $(document).ready(function(){$('#quicksearchBar').focus();}) // Focus on the search bar ASAP
     });
   </script>
   
@@ -173,18 +276,14 @@
 <body>
   <div class="entirePage">
     <div id="searchBox">
+      <div id="quickFindDiv">
+        <input id="quicksearchBar" tabindex="1" placeholder="Quicksearch bar, start typing here...">
+      </div>
       <div id="map"></div>
     </div>
     <div id="document">
       <div id="searchBoxPlaceHolder"></div>
-      <!-- The document text will be loaded in here -->lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
-      lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
-      lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
-      lots of text here<br/>lots of text here<br/> still lots of text...
-      lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
-      lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
-      lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
-      lots of text here<br/>lots of text here<br/>lots of text here<br/>lots of text here<br/>
+      <!-- The document text will be loaded in here -->
     </div>
   </div>
 </body>

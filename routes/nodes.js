@@ -15,6 +15,15 @@ router.post("/getRootNode", function(req, res, next) {
   });
 });
 
+// Returns the information associated with a given node (or an empty array if no node 
+// with the given id exists)
+router.post("/getNodeData", function(req, res, next) {
+  database.getNodeData (req.body.id, function (err, results) {
+    if (err) { res.status(500).send ("Node query failed"); return; }
+    res.send (results); // Send back the results as JSON for the root node
+  });
+});
+
   // Ask for the children of a given parent node
 router.post("/getChildrenNodes", function(req, res, next) {
   database.getChildrenNodes (req.body.id, function (err, results) {
@@ -27,6 +36,14 @@ router.post("/getChildrenNodes", function(req, res, next) {
 router.post("/getParentNodes", function(req, res, next) {
   database.getParentNodes (req.body.id, function (err, results) {
     if (err) { res.status(500).send ("Node query failed"); return; }
+    res.send (results); // Send back the results as JSON for the root node
+  });
+});
+
+// Perform a query to find a list of matching nodes in the kbase (up to a fixed maximum)
+router.post("/getNodesMatchingQuery", function(req, res, next) {
+  database.getNodesMatchingQuery (req.body.query, function (err, results) {
+    if (err) { res.status(500).send ("Node matching query failed"); return; }
     res.send (results); // Send back the results as JSON for the root node
   });
 });
