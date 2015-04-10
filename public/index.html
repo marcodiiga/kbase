@@ -232,6 +232,7 @@ function SelectText(element) {
       $('#searchBoxPlaceHolder').css('width', $('#searchBox')[0].scrollWidth + 'px');
       
       // Add ajax autocomplete capabilities to the quicksearch bar
+      var closeCallback = null; // Holds a menu-close callback when needed
       $("#quicksearchBar").autocomplete({ 
         source: function (request, response) {
           $.ajax({
@@ -261,10 +262,16 @@ function SelectText(element) {
             height:  0,
             opacity: 0
           }, 500);
-          loadNewRootNode (id); // Proceed to repopulate the map with the new root          
+          loadNewRootNode (id); // Proceed to repopulate the map with the new root
+          closeCallback = function () { // This ensures we're selecting the quicksearch bar text only when there's a selection
+            $('#quicksearchBar').select(); // Select the text inside the quicksearch bar when finished
+          };
         },
-        close: function (event, ui) { // Event when the menu is closed down
-          $('#quicksearchBar').select(); // Select the text inside the quicksearch bar when finished
+        close: function (event, ui) { // Event when the menu is closed down AND something has been selected
+          if (closeCallback != null) { // Execute any scheduled callback
+            closeCallback ();
+            closeCallback = null;
+          }
         }
       });
       
