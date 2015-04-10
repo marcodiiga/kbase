@@ -87,6 +87,7 @@
       
       // Make this the new root node
       node.markAsSelected ();
+      node.$element.removeClass ('parent');
       
       // Remove all the map nodes which aren't this one
       $.each (map.getNodes(), function () {
@@ -96,7 +97,9 @@
       
       // Get all this node's parents and children through an ajax query
       performPOSTQueryOnKbase (node, "/nodes/getParentNodes", function (id, document, text) {
-        node.addChildNode (id, document, text).callback = nodeClicked;
+        var parentNode = node.addChildNode (id, document, text);
+        parentNode.callback = nodeClicked;
+        parentNode.$element.addClass ('parent');
       });
       performPOSTQueryOnKbase (node, "/nodes/getChildrenNodes", function (id, document, text) {
         node.addChildNode (id, document, text).callback = nodeClicked;
