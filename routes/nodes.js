@@ -4,9 +4,9 @@ var router = express.Router();
 var database = require('../mysql/database');
 
 // POST getRootNode - gets the root node data for the entire kbase
-//  req.originalUrl -> '/nodes/getRoot'
+//  req.originalUrl -> '/nodes/getRootNode'
 //  req.baseUrl     -> '/nodes'
-//  req.path        -> '/getRoot'
+//  req.path        -> '/getRootNode'
 router.post("/getRootNode", function(req, res, next) {
   // Contact the mysql daemon and ask for the root node (with id=1)
   database.getRootNode (function (err, results) {

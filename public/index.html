@@ -248,10 +248,10 @@ function SelectText(element) {
       // Two paths: if there's a node id GET request, load that node immediately, otherwise
       // load the kbase root node
       var getParameters = getGETQueryStrings(window.location.search.substr(1).split('&'));
-      if (typeof getParameters["id"] == "undefined")
+      if (typeof getParameters["node"] == "undefined")
         rootNode = initializeMapWithRoot(map);
       else
-        rootNode = initializeMapWithRoot(map, parseInt(getParameters["id"]));
+        rootNode = initializeMapWithRoot(map, parseInt(getParameters["node"]));
       
       // Scale the placeholder to the width and height of the searchBox div
       $('#searchBoxPlaceHolder').css('height', $('#searchBox')[0].scrollHeight + 'px');
