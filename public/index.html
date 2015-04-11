@@ -17,8 +17,20 @@
   
   <script type="text/javascript">
     
-    var map, rootNode, pendingAjaxCalls = 0;
-    
+    var map, rootNode, pendingAjaxCalls = 0;        
+
+    function getGETQueryStrings (querystring_parts) { // Returns an array of get request query strings (e.g. {id: 23})
+        if (querystring_parts == "") return {};
+        var b = {};
+        for (var i = 0; i < querystring_parts.length; ++i)
+        {
+            var p = querystring_parts[i].split('=');
+            if (p.length != 2) continue;
+            b[p[0]] = decodeURIComponent (p[1].replace(/\+/g, " "));
+        }
+        return b;
+    }
+     
     function setDocumentHtml (document, htmlText) {
       $('#document').queue(function () {
         // Save the placeholder, this will have to be reinserted after the new document has been loaded
@@ -161,47 +173,55 @@
     }
     
     
-    function initializeMapWithRoot(map) { // First-time initialize the map with the kbase root  
-      pendingAjaxCalls++;
-      $.ajax({ // Ask for the root node in the database
-        type: "POST",
-        url : "/nodes/getRootNode",
-        success : function(response) {
-          if(response.length != 1) {
-            $.error ("Expected one root node for kbase, got length of "+response.length);
-            return;
-          }
-          var rootObj = response[0]; // {document, id, text}
-          // Create the root node
-          rootNode = map.createRootNode (rootObj.id, rootObj.document, rootObj.text);
-          rootNode.callback = nodeClicked;
-          pendingAjaxCalls--;
-          
-          // Create the child nodes directly attached to the root
-          pendingAjaxCalls++;
-          $.ajax({
-            type: "POST",
-            url : "/nodes/getChildrenNodes",
-            contentType: 'application/json',
-            data: JSON.stringify({id: rootNode.id}),
-            success : function(response) {
-              $.each (response, function () {
-                var newNode = rootNode.addChildNode(this.id, this.document, this.text);
-                newNode.callback = nodeClicked;
-              });
-              pendingAjaxCalls--;
-            },
-            error: function(xhr, ajaxOptions, thrownError) {
-              $.error ("Ajax call error: (" + xhr.status + ") " + thrownError);
-              pendingAjaxCalls--;
+    function initializeMapWithRoot (map, rootId) { // First-time initialize the map with the kbase root or a given root node
+      
+      if (typeof rootId == "undefined") {
+        // KBase root node requested
+        
+        pendingAjaxCalls++;
+        $.ajax({ // Ask for the root node in the database
+          type: "POST",
+          url : "/nodes/getRootNode",
+          success : function(response) {
+            if(response.length != 1) {
+              $.error ("Expected one root node for kbase, got length of "+response.length);
+              return;
             }
-          });
-        },
-        error: function(xhr, ajaxOptions, thrownError) {
-          $.error ("Ajax call error: (" + xhr.status + ") " + thrownError);
-          pendingAjaxCalls--;
-        }
-      });
+            var rootObj = response[0]; // {document, id, text}
+            // Create the root node
+            rootNode = map.createRootNode (rootObj.id, rootObj.document, rootObj.text);
+            rootNode.callback = nodeClicked;
+            pendingAjaxCalls--;
+            
+            // Create the child nodes directly attached to the root
+            pendingAjaxCalls++;
+            $.ajax({
+              type: "POST",
+              url : "/nodes/getChildrenNodes",
+              contentType: 'application/json',
+              data: JSON.stringify({id: rootNode.id}),
+              success : function(response) {
+                $.each (response, function () {
+                  var newNode = rootNode.addChildNode(this.id, this.document, this.text);
+                  newNode.callback = nodeClicked;
+                });
+                pendingAjaxCalls--;
+              },
+              error: function(xhr, ajaxOptions, thrownError) {
+                $.error ("Ajax call error: (" + xhr.status + ") " + thrownError);
+                pendingAjaxCalls--;
+              }
+            });
+          },
+          error: function(xhr, ajaxOptions, thrownError) {
+            $.error ("Ajax call error: (" + xhr.status + ") " + thrownError);
+            pendingAjaxCalls--;
+          }
+        });
+      } else {
+        // Specific root node requested
+        loadNewRootNode (rootId);
+      }
     }
     
 function SelectText(element) {
@@ -223,9 +243,15 @@ function SelectText(element) {
 }
     
     $(document).ready(function() { 
-      // Create the node map - TODO GET
+      // Create the node map
       map = $('#map').createNodeMap({scaleLevel: 0.55});
-      rootNode = initializeMapWithRoot(map);
+      // Two paths: if there's a node id GET request, load that node immediately, otherwise
+      // load the kbase root node
+      var getParameters = getGETQueryStrings(window.location.search.substr(1).split('&'));
+      if (typeof getParameters["id"] == "undefined")
+        rootNode = initializeMapWithRoot(map);
+      else
+        rootNode = initializeMapWithRoot(map, parseInt(getParameters["id"]));
       
       // Scale the placeholder to the width and height of the searchBox div
       $('#searchBoxPlaceHolder').css('height', $('#searchBox')[0].scrollHeight + 'px');
