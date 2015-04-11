@@ -15,9 +15,13 @@
   <!-- Node map -->
   <script type="text/javascript" src="knode/nodemap.js"></script>
   
+  <!-- Syntax highlighting via CDNs -->
+  <link rel="stylesheet" href="highlight/8.5/styles/monokai_sublime.css">
+  <script src="highlight/8.5/highlight.pack.js"></script>
+  
   <script type="text/javascript">
     
-    var map, rootNode, pendingAjaxCalls = 0;        
+    var map, rootNode, pendingAjaxCalls = 0;      
 
     function getGETQueryStrings (querystring_parts) { // Returns an array of get request query strings (e.g. {id: 23})
         if (querystring_parts == "") return {};
@@ -30,15 +34,18 @@
         }
         return b;
     }
-     
+    
     function setDocumentHtml (document, htmlText) {
       $('#document').queue(function () {
         // Save the placeholder, this will have to be reinserted after the new document has been loaded
         var $placeHolder = $('#searchBoxPlaceHolder').clone();
         $('#document').html (htmlText);
+        // TODO: escape stuff in <code> tags
         $('#document').prepend ($placeHolder); // Makes room for the searchBox by reinserting the placeholder
         // Enqueue the animation for the div's height to fit the entire content. This is necessary since scrollHeight
         // could not be calculated before. Now it's a valid value for the new document
+        hljs.initHighlighting.called = false; // Hack to have the syntax highlighter redo all the work
+        hljs.initHighlighting (); // Start the syntax highlighter on this document (<pre><code> blocks)
         $('#document').animate({
           height: $('#document')[0].scrollHeight,
           opacity: 1

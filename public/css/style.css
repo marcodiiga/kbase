@@ -17,12 +17,13 @@ div#quickFindDiv { /* The quicksearch bar containing div*/
   border-radius: 15px;
   margin-bottom: 5px;
   overflow:hidden;
+  background: white;
 }
 div#quickFindDiv>input {
-  width: 100%;
-  border: none;
   padding: 2px;
-  margin: 5px; /*DEBUG*/
+  width: 100%;
+  border: none;  
+  margin: 5px;
   font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
 }
 div#quickFindDiv>input:focus {
@@ -77,4 +78,134 @@ div#document { /* The document containing div */
   height: 0px; /* This div starts with 0 height and gets resized by js events */
   opacity: 0;  /* Also starts invisible */
   overflow: hidden;
+}
+
+/** Pure styling directives for doc pages **/
+
+@font-face {
+  font-family: 'Quattrocento Sans';
+  src: url("../fonts/quattrocentosans-bold-webfont.eot");
+  src: url("../fonts/quattrocentosans-bold-webfont.eot?#iefix") format("embedded-opentype"), url("../fonts/quattrocentosans-bold-webfont.woff") format("woff"), url("../fonts/quattrocentosans-bold-webfont.ttf") format("truetype"), url("../fonts/quattrocentosans-bold-webfont.svg#QuattrocentoSansBold") format("svg");
+  font-weight: bold;
+  font-style: normal;
+}
+
+html, body {
+  height: 100%;
+  font: 14px/22px "Quattrocento Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: linear-gradient(135deg, rgba(216,216,216,1) 1%,rgba(255,255,255,1) 99%);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #333;
+  margin: 10px;
+}
+
+p, ul, ol, table, pre, dl {
+  margin: 0 0 20px;
+}
+
+h1, h2, h3 {
+  line-height: 1.1;
+}
+
+h1 {
+  font-size: 28px;
+}
+
+h2 {
+  font-size: 24px;
+  color: #393939;
+}
+
+h3, h4, h5, h6 {
+  color: #666666;
+}
+
+h3 {
+  font-size: 18px;
+  line-height: 24px;
+}
+
+a {
+  color: #3399cc;
+  font-weight: 400;
+  text-decoration: none;
+}
+
+a small {
+  font-size: 11px;
+  color: #666;
+  margin-top: -0.6em;
+  display: block;
+}
+
+strong {
+  font-weight: bold;
+  color: #333;
+}
+
+pre:not(.inline) {
+  display: table;
+  min-width: 500px;
+  padding: 5px;
+  background: #333333;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -o-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #c7c7c7;
+  overflow: auto;
+  overflow-y: hidden;
+  margin: 5px 20px 5px 5px;
+}
+
+pre.inline {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 3px;
+  background: #23241F;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -o-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  margin: -15px 0 -5px 0;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {  
+  /* CSS Statements that only apply on webkit-based browsers (Chrome, Safari, etc.) */  
+  pre.inline {
+    vertical-align: -webkit-baseline-middle;
+  }
+}
+
+pre.inline > code {
+  padding: 0px;
+  margin: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  padding: 5px 10px;
+  border-bottom: 1px solid #e5e5e5;
+  color: #444;
+}
+
+td {
+  text-align: left;
+  padding: 5px 10px;
+  border-bottom: 1px solid #e5e5e5;
+  border-right: 1px solid #ffcc00;
+}
+td:first-child {
+  border-left: 1px solid #ffcc00;
 }

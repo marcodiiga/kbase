@@ -1,4 +1,40 @@
-﻿<h1> § SFINAE stuff</h1>
+﻿<h1>§ SFINAE stuff</h1>
 
-<center>Hello Bjarne!
-<img src='http://www.stroustrup.com/Bjarne.jpg' width='250' height='180'></center>
+<center>Hello Bjarne!</center>
+<center><img src='http://www.stroustrup.com/Bjarne.jpg' width='250' height='180'></center>
+
+<h2>This is a subparagraph</h2>
+Hello in this.. balblalblalba
+<h3>Still another subsubparagraph</h3>
+And here we can see that... uh...<a href="http://www.google.it">goto google plz</a>
+I'm <b>BOLD</b>
+
+This is a nice code formatted block. But there's also some <pre class="inline"><code class="cpp">cout << "code";</code></pre> inlined. And there's more, more, more, 
+more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, 
+more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, more, 
+more, more, more, more, more, more, more, more, more, more and <pre class="inline"><code class="cpp">int otherinlinedstuff;</code></pre>re, more, more, more, more, mor
+re, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, mor
+re, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, mor
+re, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, mor
+re, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, mor
+re, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, mor
+re, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, mor
+re, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, mor
+<div style="float:left;">
+<pre><code class="cpp">
+#include <helloworld>
+using namespace thisisgreat;
+
+int main() {
+
+  return FUN;
+}
+</code></pre>
+</div>
+re, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, mor
+re, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, mor
+re, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, mor
+re, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, mor
+re, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, mor
+re, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, mor
+re, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, morre, more, more, more, more, mor
