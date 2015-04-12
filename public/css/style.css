@@ -90,7 +90,7 @@ div#document { /* The document containing div */
   font-style: normal;
 }
 
-html, body {
+html {
   height: 100%;
   font: 14px/22px "Quattrocento Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   background: linear-gradient(135deg, rgba(216,216,216,1) 1%,rgba(255,255,255,1) 99%);
