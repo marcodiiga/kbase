@@ -21,7 +21,7 @@
   
   <script type="text/javascript">
     
-    var map, rootNode, pendingAjaxCalls = 0;      
+    var map, pendingAjaxCalls = 0;      
 
     function getGETQueryStrings (querystring_parts) { // Returns an array of get request query strings (e.g. {id: 23})
         if (querystring_parts == "") return {};
@@ -34,23 +34,39 @@
         }
         return b;
     }
+
+    // Escape html characters inside <code></code> tags
+    function escapeHTMLintoCodeTags (text) {
+      var codeRegEx = /(<\s*code[^>]*>)([\s\S]*?)(<\s*\/\s*code>)/gi;
+      text = text.replace (codeRegEx, function (completeSubStr, group1, group2, group3) {
+        return group1 + group2.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') + group3;
+      });
+      return text;
+    }
     
     function setDocumentHtml (document, htmlText) {
-      $('#document').queue(function () {
+      $('#document').queue(function () { // (*)
         // Save the placeholder, this will have to be reinserted after the new document has been loaded
         var $placeHolder = $('#searchBoxPlaceHolder').clone();
+        
+        // Escape html characters inside <code></code> tags
+        htmlText = escapeHTMLintoCodeTags (htmlText);
+
         $('#document').html (htmlText);
-        // TODO: escape stuff in <code> tags
         $('#document').prepend ($placeHolder); // Makes room for the searchBox by reinserting the placeholder
-        // Enqueue the animation for the div's height to fit the entire content. This is necessary since scrollHeight
-        // could not be calculated before. Now it's a valid value for the new document
+        
         hljs.initHighlighting.called = false; // Hack to have the syntax highlighter redo all the work
         hljs.initHighlighting (); // Start the syntax highlighter on this document (<pre><code> blocks)
+
+        // Enqueue the animation for the div's height to fit the entire content. This is necessary since scrollHeight
+        // could not be calculated before. Now it's a valid value for the new document
         $('#document').animate({
           height: $('#document')[0].scrollHeight,
           opacity: 1
         }, 500);
-        $(this).dequeue(); // Continue with the next queued animation (the one just enqueued)
+        $.data($('#document')[0], "scrollHeight", $('#document')[0].scrollHeight); // Store this value, might be used later
+                                                                                   // if the same document is asked again
+        $(this).dequeue(); // Continue with the next queued animation (the (*) just enqueued)
       });      
     }
     
@@ -116,12 +132,19 @@
         performPOSTDocumentRequest (node.href, function (data) {
           setDocumentHtml (node.href, data);
         });
+      } else if (node.href != undefined) { // Document is already loaded but perhaps the div is still collapsed, make sure it's visible
+        // We can NOT get here if there's no document (node.href == undefined) so in that case no animation would be played
+        $('#document').animate({
+          height: $.data($('#document')[0], "scrollHeight"), // Scroll to its latest stored scrollHeight
+          opacity: 1
+        }, 500);
       }
 
       // Whatever the document asked (even undefined), store it into an HTML5 data attribute
-      if (node.href != undefined)
+      // and if there's something to show, make sure the document is shown with an animation
+      if (node.href != undefined) {
         $.data($('#document')[0], "currentDocument", node.href);
-      else
+      } else
         $.data($('#document')[0], "currentDocument", null);
     }
     
@@ -166,7 +189,7 @@
       performPOSTQueryOnKbase (id, "/nodes/getNodeData", function (id, document, text) {
         
         // Create this node as the root
-        rootNode = map.createRootNode (id, document, text);
+        var rootNode = map.createRootNode (id, document, text);
         // Add every other related node
         loadNodeParentsAndChildren (rootNode);
         // Finally load the new document
@@ -196,7 +219,7 @@
             }
             var rootObj = response[0]; // {document, id, text}
             // Create the root node
-            rootNode = map.createRootNode (rootObj.id, rootObj.document, rootObj.text);
+            var rootNode = map.createRootNode (rootObj.id, rootObj.document, rootObj.text);
             rootNode.callback = nodeClicked;
             pendingAjaxCalls--;
             
@@ -231,24 +254,6 @@
       }
     }
     
-function SelectText(element) {
-    var text = document.getElementById(element);
-    if ($.browser.msie) {
-        var range = document.body.createTextRange();
-        range.moveToElementText(text);
-        range.select();
-    } else if ($.browser.mozilla || $.browser.opera) {
-        var selection = window.getSelection();
-        var range = document.createRange();
-        range.selectNodeContents(text);
-        selection.removeAllRanges();
-        selection.addRange(range);
-    } else if ($.browser.safari) {
-        var selection = window.getSelection();
-        selection.setBaseAndExtent(text, 0, text, 1);
-    }
-}
-    
     $(document).ready(function() { 
       // Create the node map
       map = $('#map').createNodeMap({scaleLevel: 0.55});
@@ -256,9 +261,9 @@ function SelectText(element) {
       // load the kbase root node
       var getParameters = getGETQueryStrings(window.location.search.substr(1).split('&'));
       if (typeof getParameters["node"] == "undefined")
-        rootNode = initializeMapWithRoot(map);
+        initializeMapWithRoot (map);
       else
-        rootNode = initializeMapWithRoot(map, parseInt(getParameters["node"]));
+        initializeMapWithRoot (map, parseInt (getParameters["node"]));
       
       // Scale the placeholder to the width and height of the searchBox div
       $('#searchBoxPlaceHolder').css('height', $('#searchBox')[0].scrollHeight + 'px');
