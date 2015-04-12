@@ -67,9 +67,10 @@ div#quickFindDiv>input:focus {
 }
 
 div#map { /* The map containing div*/
-  width:470px; 
-  height:450px; 
+  width:470px;
+  height:450px;
   border: 2px solid rgba(0,0,0,0.2);
+  overflow: hidden; /* This is important for Firefox - tells not to care about the hidden part of the nodemap */
 }
 
 div#document { /* The document containing div */
@@ -90,10 +91,9 @@ div#document { /* The document containing div */
   font-style: normal;
 }
 
-html {
-  height: 100%;
+body {
   font: 14px/22px "Quattrocento Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background: linear-gradient(135deg, rgba(216,216,216,1) 1%,rgba(255,255,255,1) 99%);
+  background: linear-gradient(135deg, rgba(216,216,216,1) 1%, rgba(255,255,255,1) 99%);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -180,6 +180,12 @@ pre.inline {
   /* CSS Statements that only apply on webkit-based browsers (Chrome, Safari, etc.) */  
   pre.inline {
     vertical-align: -webkit-baseline-middle;
+  }
+}
+@-moz-document url-prefix() {
+  /* CSS Statements that only apply on geko-based browsers (Firefox) */  
+  pre.inline {
+    margin: -10px 0 -5px 0;
   }
 }
 
