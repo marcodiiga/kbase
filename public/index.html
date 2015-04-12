@@ -3,267 +3,51 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <title>KBase</title>
-  <link href="css/style.css" type="text/css" rel="stylesheet"/>
-  
-  <!-- knode style sheet -->
-  <link href="knode/style.css" type="text/css" rel="stylesheet"/>
   <!-- jQuery and UI for draggable nodes -->
   <script type="text/javascript" src="knode/jquery/2.1.3/jquery.min.js"></script>
   <script type="text/javascript" src="knode/jqueryui/1.11.4/jquery-ui.min.js"></script>
-  <!-- Raphael for SVG graphics -->
-  <script type="text/javascript" src="knode/raphael/2.1.4/raphael-min.js"></script>
-  <!-- Node map -->
-  <script type="text/javascript" src="knode/nodemap.js"></script>
   
-  <!-- Syntax highlighting via CDNs -->
+  <!-- KNode module -->
+  <script type="text/javascript" src="knode/raphael/2.1.4/raphael-min.js"></script>
+  <script type="text/javascript" src="knode/nodemap.js"></script>
+  <link href="knode/style.css" type="text/css" rel="stylesheet"/>
+  
+  <!-- Syntax highlighting module -->
   <link rel="stylesheet" href="highlight/8.5/styles/monokai_sublime.css">
   <script src="highlight/8.5/highlight.pack.js"></script>
   
+  <!-- KBase module -->
+  <link href="css/style.css" type="text/css" rel="stylesheet"/>
+  <script type="text/javascript" src="js/kbase.js"></script>
+  
   <script type="text/javascript">
-    
-    var map, pendingAjaxCalls = 0;      
-
+    'use strict';
+  
+    // Js GET helper
     function getGETQueryStrings (querystring_parts) { // Returns an array of get request query strings (e.g. {id: 23})
-        if (querystring_parts == "") return {};
-        var b = {};
-        for (var i = 0; i < querystring_parts.length; ++i)
-        {
-            var p = querystring_parts[i].split('=');
-            if (p.length != 2) continue;
-            b[p[0]] = decodeURIComponent (p[1].replace(/\+/g, " "));
-        }
-        return b;
-    }
-
-    // Escape html characters inside <code></code> tags
-    function escapeHTMLintoCodeTags (text) {
-      var codeRegEx = /(<\s*code[^>]*>)([\s\S]*?)(<\s*\/\s*code>)/gi;
-      text = text.replace (codeRegEx, function (completeSubStr, group1, group2, group3) {
-        return group1 + group2.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') + group3;
-      });
-      return text;
-    }
-    
-    function setDocumentHtml (document, htmlText) {
-      $('#document').queue(function () { // (*)
-        // Save the placeholder, this will have to be reinserted after the new document has been loaded
-        var $placeHolder = $('#searchBoxPlaceHolder').clone();
-        
-        // Escape html characters inside <code></code> tags
-        htmlText = escapeHTMLintoCodeTags (htmlText);
-
-        $('#document').html (htmlText);
-        $('#document').prepend ($placeHolder); // Makes room for the searchBox by reinserting the placeholder
-        
-        hljs.initHighlighting.called = false; // Hack to have the syntax highlighter redo all the work
-        hljs.initHighlighting (); // Start the syntax highlighter on this document (<pre><code> blocks)
-
-        // Enqueue the animation for the div's height to fit the entire content. This is necessary since scrollHeight
-        // could not be calculated before. Now it's a valid value for the new document
-        $('#document').animate({
-          height: $('#document')[0].scrollHeight,
-          opacity: 1
-        }, 500);
-        $.data($('#document')[0], "scrollHeight", $('#document')[0].scrollHeight); // Store this value, might be used later
-                                                                                   // if the same document is asked again
-        $(this).dequeue(); // Continue with the next queued animation (the (*) just enqueued)
-      });      
-    }
-    
-    function performPOSTDocumentRequest (document, callback) { // Load via ajax a requested document
-      pendingAjaxCalls++;
-      $.ajax({ // Ask for the parents of a node in the database
-        type: "POST",
-        url : "/documents/getDocument",
-        data: JSON.stringify({document: document}),
-        contentType: 'application/json',
-        success : function(response) {
-          callback (response);
-          pendingAjaxCalls--;
-        },
-        error: function(xhr, ajaxOptions, thrownError) {
-          $.error ("Ajax call error: (" + xhr.status + ") " + thrownError);
-          pendingAjaxCalls--;
-        }
-      });
-    }
-    
-    function performPOSTQueryOnKbase (nodeId, uri, callback, callbackIfNoResults) {
-      pendingAjaxCalls++;
-      $.ajax({ // Ask for a query on a node in the database
-        type: "POST",
-        url : uri,
-        data: JSON.stringify({id: nodeId}),
-        contentType: 'application/json',
-        success : function(response) {
-          if (response.length === 0 && typeof callbackIfNoResults != 'undefined')
-            callbackIfNoResults ();
-          else {
-            $.each (response, function () {
-              callback (this.id, this.document, this.text);
-            });
-          }
-          pendingAjaxCalls--;
-        },
-        error: function(xhr, ajaxOptions, thrownError) {
-          $.error ("Ajax call error: (" + xhr.status + ") " + thrownError);
-          pendingAjaxCalls--;
-        }
-      });
-    }
-    
-    // Load all the parents and children of a node and add them to the map
-    function loadNodeParentsAndChildren (node) {
-      // Get all this node's parents and children through an ajax query
-      performPOSTQueryOnKbase (node.id, "/nodes/getParentNodes", function (id, document, text) {
-        var parentNode = node.addChildNode (id, document, text);
-        parentNode.callback = nodeClicked;
-        parentNode.$element.addClass ('parent');
-      });
-      performPOSTQueryOnKbase (node.id, "/nodes/getChildrenNodes", function (id, document, text) {
-        node.addChildNode (id, document, text).callback = nodeClicked;
-      });
-    }
-    
-    // Load a node's document if it isn't already loaded
-    function loadNodeDocument (node) {
-      // If there's any href (not already loaded), load the document asked
-      if (node.href != undefined && $.data($('#document')[0], "currentDocument") != node.href) {
-        performPOSTDocumentRequest (node.href, function (data) {
-          setDocumentHtml (node.href, data);
-        });
-      } else if (node.href != undefined) { // Document is already loaded but perhaps the div is still collapsed, make sure it's visible
-        // We can NOT get here if there's no document (node.href == undefined) so in that case no animation would be played
-        $('#document').animate({
-          height: $.data($('#document')[0], "scrollHeight"), // Scroll to its latest stored scrollHeight
-          opacity: 1
-        }, 500);
+      if (querystring_parts == "") return {};
+      var b = {};
+      for (var i = 0; i < querystring_parts.length; ++i)
+      {
+          var p = querystring_parts[i].split('=');
+          if (p.length != 2) continue;
+          b[p[0]] = decodeURIComponent (p[1].replace(/\+/g, " "));
       }
+      return b;
+    }
 
-      // Whatever the document asked (even undefined), store it into an HTML5 data attribute
-      // and if there's something to show, make sure the document is shown with an animation
-      if (node.href != undefined) {
-        $.data($('#document')[0], "currentDocument", node.href);
-      } else
-        $.data($('#document')[0], "currentDocument", null);
-    }
-    
-    function nodeClicked (node) { // Click handler for nodes
-    
-      $('#quicksearchBar').val(''); // Clear quicksearch query
-    
-      if (pendingAjaxCalls > 0)
-        return; // If ajax calls are slow, we can't proceed (we might add duplicate nodes due to
-                // dangling references and asynchronous callbacks)
-        
-      // Only case we don't hide the current document is when we already have the requested one
-      if ($.data($('#document')[0], "currentDocument") != node.href) {
-        $('#document').animate({
-          height:  0,
-          opacity: 0
-        }, 500);
-      }
-      
-      // Make this the new root node
-      node.markAsSelected ();
-      node.$element.removeClass ('parent');
-      
-      // Remove all the map nodes which aren't this one
-      $.each (map.getNodes(), function () {
-        if (this != node)
-          this.deleteNode ();
-      });
-      
-      loadNodeParentsAndChildren (node);
-      
-      loadNodeDocument (node);
-    }
-    
-    function loadNewRootNode (id) { // Load a completely new root node and all its associated data
-    
-      if (pendingAjaxCalls > 0)
-        return; // If ajax calls are slow, we can't proceed (we might add duplicate nodes due to
-                // dangling references and asynchronous callbacks)
-                
-      // Get the requested node information
-      performPOSTQueryOnKbase (id, "/nodes/getNodeData", function (id, document, text) {
-        
-        // Create this node as the root
-        var rootNode = map.createRootNode (id, document, text);
-        // Add every other related node
-        loadNodeParentsAndChildren (rootNode);
-        // Finally load the new document
-        loadNodeDocument (rootNode);
-        
-      }, function () {
-        $.error ("Error: no node with this id exists in the kbase: " + id);
-        return;
-      });
-    
-    }
-    
-    
-    function initializeMapWithRoot (map, rootId) { // First-time initialize the map with the kbase root or a given root node
-      
-      if (typeof rootId == "undefined") {
-        // KBase root node requested
-        
-        pendingAjaxCalls++;
-        $.ajax({ // Ask for the root node in the database
-          type: "POST",
-          url : "/nodes/getRootNode",
-          success : function(response) {
-            if(response.length != 1) {
-              $.error ("Expected one root node for kbase, got length of "+response.length);
-              return;
-            }
-            var rootObj = response[0]; // {document, id, text}
-            // Create the root node
-            var rootNode = map.createRootNode (rootObj.id, rootObj.document, rootObj.text);
-            rootNode.callback = nodeClicked;
-            pendingAjaxCalls--;
-            
-            // Create the child nodes directly attached to the root
-            pendingAjaxCalls++;
-            $.ajax({
-              type: "POST",
-              url : "/nodes/getChildrenNodes",
-              contentType: 'application/json',
-              data: JSON.stringify({id: rootNode.id}),
-              success : function(response) {
-                $.each (response, function () {
-                  var newNode = rootNode.addChildNode(this.id, this.document, this.text);
-                  newNode.callback = nodeClicked;
-                });
-                pendingAjaxCalls--;
-              },
-              error: function(xhr, ajaxOptions, thrownError) {
-                $.error ("Ajax call error: (" + xhr.status + ") " + thrownError);
-                pendingAjaxCalls--;
-              }
-            });
-          },
-          error: function(xhr, ajaxOptions, thrownError) {
-            $.error ("Ajax call error: (" + xhr.status + ") " + thrownError);
-            pendingAjaxCalls--;
-          }
-        });
-      } else {
-        // Specific root node requested
-        loadNewRootNode (rootId);
-      }
-    }
-    
     $(document).ready(function() { 
       // Create the node map
-      map = $('#map').createNodeMap({scaleLevel: 0.55});
+      var map = $('#map').createNodeMap({scaleLevel: 0.55});
+      // Create a KBase object for the node map
+      var kbase = new KBase (map);
       // Two paths: if there's a node id GET request, load that node immediately, otherwise
       // load the kbase root node
-      var getParameters = getGETQueryStrings(window.location.search.substr(1).split('&'));
+      var getParameters = getGETQueryStrings (window.location.search.substr(1).split('&'));
       if (typeof getParameters["node"] == "undefined")
-        initializeMapWithRoot (map);
+        kbase.initializeMapWithRoot (map);
       else
-        initializeMapWithRoot (map, parseInt (getParameters["node"]));
+        kbase.initializeMapWithRoot (map, parseInt (getParameters["node"]));
       
       // Scale the placeholder to the width and height of the searchBox div
       $('#searchBoxPlaceHolder').css('height', $('#searchBox')[0].scrollHeight + 'px');
@@ -300,7 +84,7 @@
             height:  0,
             opacity: 0
           }, 500);
-          loadNewRootNode (id); // Proceed to repopulate the map with the new root
+          kbase.loadNewRootNode (id); // Proceed to repopulate the map with the new root
           closeCallback = function () { // This ensures we're selecting the quicksearch bar text only when there's a selection
             $('#quicksearchBar').select(); // Select the text inside the quicksearch bar when finished
           };
