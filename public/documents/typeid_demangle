@@ -1,12 +1,13 @@
 <h1>Debugging types typeid demangle</h1>
 
-A useful operator for outputting glvalues (lvalue or xvalue) dynamic types (the type of its most derived object) is <code class="inline">typeid</code>.
-It returns a lvalue referring to a static storage duration object (i.e. persists for the entire duration of the program) of polymorphic type <code class="inline">const std::type_info</code>
+A useful operator for outputting glvalues (lvalue or xvalue) dynamic types (the type of its most derived object) is <pre class="inline"><code class="cpp">typeid</code></pre>.
+It returns a lvalue referring to a static storage duration object (i.e. persists for the entire duration of the program) of polymorphic type 
+<pre class="inline"><code class="cpp">const std::type_info</code></pre>
 or derived from it. Lookup for polymorphic types might involved runtime overhead. There is <b>no guarantee</b> that the same instance will be returned by all evaluations (except 
-<code class="inline">std::type_info::hash_code</code>, that is guaranteed to be the same).
+<pre class="inline"><code class="cpp">std::type_info::hash_code</code></pre>, that is guaranteed to be the same).
 
 Sample code to get demangled type names under clang/gcc
-<code>
+<pre><code class="cpp">
 #include <iostream>
 #include <typeinfo>
 
@@ -39,4 +40,4 @@ int main() {
     sampleType obj;
     std::cout << demangle(typeid(obj).name()); // Output: 'sampleType'
 }
-</code>
+</code></pre>
