@@ -14,7 +14,7 @@ int main() {
 There isn't a standard way to specify some arguments and leave the others defaulted though, e.g.
 <pre class="inline"><code class="cpp">struct_with_default_types<default_type, default_type, bool> obj;</code></pre>
 However there are techniques which can mimic the intended behavior.
-
+<br/>
 <h2>Change a subset of default arguments with 'using'</h2>
 The <pre class="inline"><code class="cpp">using</code></pre> directive in the example below allows to leave some arguments 
 defaulted while changing others at will
@@ -57,7 +57,7 @@ int main() {
    struct_with_default_types <default_type, default_type, std::wstring> obj;
 }
 </code></pre>
-
+<br/>
 <h2>Change a subset of default arguments by recursively instantiating different templates</h2>
 Another workaround to the issue could be recursively instantiating a template with the desired set of arguments
 <pre><code class="cpp">
@@ -97,9 +97,10 @@ whatever argument the user chose will be instantiated since:
 <blockquote>
 [C++11: 14.7.1]: Unless a class template specialization (when all arguments have been used, in this case <>) has been explicitly instantiated (14.7.2) or explicitly specialized (14.7.3) (both didn't happen in this case), the class template specialization is implicitly instantiated when the specialization is referenced in a context that requires a completely-defined object type or when the completeness of the class type affects the semantics of the program. [..] (in this case it does)
 </blockquote>
-
+<br/>
 <h2>Change a subset of default arguments with 'tuple_element_t'</h2>
-Another trick could be to create at compile-time a tuple with the default arguments of the original template and get the N-th type with the C++14 function <pre class="inline"><code class="cpp">tuple_element_t</code>
+Another trick could be to create at compile-time a tuple with the default arguments of the original template and get the N-th type with the C++14 function <pre class="inline"><code class="cpp">tuple_element_t</code></pre>
+
 <pre><code class="cpp">
 template< typename T1 = int, 
           typename T2 = long, 
