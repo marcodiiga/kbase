@@ -1,15 +1,29 @@
-div.entirePage { /* The all-containing div*/
+html,body {
+  margin: 0 auto;
+  height: 100%;
+  float: left;
+  display: inline-table;
   width: 100%;
 }
 
-div#searchBoxPlaceHolder { /* Height and width will have to be set by code */
-  margin: 0px 5px 0px 0px;
+div#leftColumn {
+  display: list-item;
+  padding: 5px;
   float: left;
+  height: 100%;
+  width: 475px;
+  min-height: 100%;
 }
 
 div#searchBox { /* The map and search box containing div*/
-  float: left;
-  position: absolute;
+  display: table;
+}
+
+div#map { /* The map containing div*/
+  width:470px;
+  height:450px;
+  border: 2px solid rgba(0,0,0,0.2);
+  overflow: hidden; /* This is important for Firefox - tells not to care about the hidden part of the nodemap */
 }
 
 div#quickFindDiv { /* The quicksearch bar containing div*/
@@ -66,15 +80,9 @@ div#quickFindDiv>input:focus {
     cursor: default;
 }
 
-div#map { /* The map containing div*/
-  width:470px;
-  height:450px;
-  border: 2px solid rgba(0,0,0,0.2);
-  overflow: hidden; /* This is important for Firefox - tells not to care about the hidden part of the nodemap */
-}
-
 div#document { /* The document containing div */
-  width: auto;
+  padding-top: 10px;
+  padding-left: 10px;
   /*border: 2px solid red;*/
   height: 0px; /* This div starts with 0 height and gets resized by js events */
   opacity: 0;  /* Also starts invisible */
@@ -98,7 +106,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   color: #333;
-  margin: 10px;
+  margin: 10px 10px 10px -2px;
 }
 
 p, ul, ol, table, pre, dl {

@@ -14,7 +14,7 @@ int main() {
 There isn't a standard way to specify some arguments and leave the others defaulted though, e.g.
 <pre class="inline"><code class="cpp">struct_with_default_types<default_type, default_type, bool> obj;</code></pre>
 However there are techniques which can mimic the intended behavior.
-<br/>
+
 <h2>Change a subset of default arguments with 'using'</h2>
 The <pre class="inline"><code class="cpp">using</code></pre> directive in the example below allows to leave some arguments 
 defaulted while changing others at will

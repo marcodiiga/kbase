@@ -49,10 +49,6 @@
       else
         kbase.initializeMapWithRoot (map, parseInt (getParameters["node"]));
       
-      // Scale the placeholder to the width and height of the searchBox div
-      $('#searchBoxPlaceHolder').css('height', $('#searchBox').height() + 'px');
-      $('#searchBoxPlaceHolder').css('width', $('#searchBox').width() + 'px');
-      
       // Add ajax autocomplete capabilities to the quicksearch bar
       var closeCallback = null; // Holds a menu-close callback when needed
       $("#quicksearchBar").autocomplete({ 
@@ -97,23 +93,36 @@
         }
       });
       
+      // Moves the searchBox with the scrolling of the page with jquery
+      var element = $('.follow-scroll'),
+          originalY = element.offset().top; // Save the original top of the element
+      // Space between element and top of screen (when scrolling)
+      var topMargin = 20;      
+      element.css('position', 'relative'); // Set measures relative to the parent container
+      $(window).on('scroll', function(event) {
+          var scrollTop = $(window).scrollTop();
+          element.stop (false, false) /* Ensures previous animations are executed too */.animate({
+              top: // Scroll of the window amount if it's more than our previous top
+                  scrollTop < originalY ? 0 : scrollTop - originalY + topMargin
+          }, 500);
+      });
+      
       $(document).ready(function(){$('#quicksearchBar').focus();}) // Focus on the search bar ASAP
     });
   </script>
   
 </head>
 <body>
-  <div class="entirePage">
-    <div id="searchBox">
+  <div id="leftColumn">
+    <div id="searchBox" class="box follow-scroll">
       <div id="quickFindDiv">
         <input id="quicksearchBar" tabindex="1" placeholder="Quicksearch bar, start typing here...">
       </div>
       <div id="map"></div>
     </div>
-    <div id="document">
-      <div id="searchBoxPlaceHolder"></div>
-      <!-- The document text will be loaded in here -->
-    </div>
+  </div>
+  <div id="document">
+    <!-- The document text will be loaded in here -->
   </div>
 </body>
 </html>
