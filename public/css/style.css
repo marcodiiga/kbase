@@ -83,6 +83,7 @@ div#quickFindDiv>input:focus {
 div#document { /* The document containing div */
   padding-top: 10px;
   padding-left: 10px;
+  padding-bottom: 10px;
   /*border: 2px solid red;*/
   height: 0px; /* This div starts with 0 height and gets resized by js events */
   opacity: 0;  /* Also starts invisible */
