@@ -79,7 +79,8 @@
           $('#document').animate({ // Hide any document loaded
             height:  0,
             opacity: 0
-          }, 500);
+          }, 500);          
+          $("html, body").animate({ scrollTop: 0 }, 500); // Restore any searchBox scroll to 0
           kbase.loadNewRootNode (id); // Proceed to repopulate the map with the new root
           closeCallback = function () { // This ensures we're selecting the quicksearch bar text only when there's a selection
             $('#quicksearchBar').select(); // Select the text inside the quicksearch bar when finished
@@ -96,6 +97,7 @@
       // Moves the searchBox with the scrolling of the page with jquery
       var element = $('.follow-scroll'),
           originalY = element.offset().top; // Save the original top of the element
+      $.data(element[0], "originalY", originalY); // Save it also in a HTML5 property for later (kbase.js) use
       // Space between element and top of screen (when scrolling)
       var topMargin = 20;      
       element.css('position', 'relative'); // Set measures relative to the parent container

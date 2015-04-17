@@ -42,14 +42,11 @@ function KBase (map) { // Call initializeMapWithRoot() to initialize a KBase whi
   
   function setDocumentHtml (document, htmlText) {
     $('#document').queue(function () { // (*)
-      // Save the placeholder, this will have to be reinserted after the new document has been loaded
-      var $placeHolder = $('#searchBoxPlaceHolder').clone();
       
       // Escape html characters inside <code></code> tags
       htmlText = escapeHTMLintoCodeTags (htmlText);
 
       $('#document').html (htmlText);
-      $('#document').prepend ($placeHolder); // Makes room for the searchBox by reinserting the placeholder
       
       hljs.initHighlighting.called = false; // Hack to have the syntax highlighter redo all the work
       hljs.initHighlighting (); // Start the syntax highlighter on this document (<pre><code> blocks)
@@ -62,7 +59,7 @@ function KBase (map) { // Call initializeMapWithRoot() to initialize a KBase whi
       }, 500);
       $.data($('#document')[0], "scrollHeight", $('#document')[0].scrollHeight); // Store this value, might be used later
                                                                                  // if the same document is asked again
-      $(this).dequeue(); // Continue with the next queued animation (the (*) just enqueued)
+      $(this).dequeue(); // Continue with the next queued animation (the (*) just queued)
     });      
   }
   
@@ -159,6 +156,7 @@ function KBase (map) { // Call initializeMapWithRoot() to initialize a KBase whi
         opacity: 0
       }, 500);
     }
+    $("html, body").animate({ scrollTop: 0 }, 500); // Restore any searchBox scroll to 0
     
     // Make this the new root node
     node.markAsSelected ();
