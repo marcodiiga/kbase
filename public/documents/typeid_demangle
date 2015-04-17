@@ -1,4 +1,4 @@
-<h1>Debugging types typeid demangle</h1>
+<h1>typeid and symbols demangling</h1>
 
 A useful operator for outputting glvalues (lvalue or xvalue) dynamic types (the type of its most derived object) is <pre class="inline"><code class="cpp">typeid</code></pre>.
 It returns a lvalue referring to a static storage duration object (i.e. persists for the entire duration of the program) of polymorphic type 
