@@ -92,7 +92,7 @@ int main() {
    obj.function();
 }
 </code></pre>
-Notice that both the template with default arguments <pre class="inline"><code class="cpp">struct_with_default_types<></code></pre> that the final template with
+Notice that both the template with default arguments <pre class="inline"><code class="cpp">struct_with_default_types<></code></pre> and the final template with
 whatever argument the user chose will be instantiated since:
 <blockquote>
 [C++11: 14.7.1]: Unless a class template specialization (when all arguments have been used, in this case <>) has been explicitly instantiated (14.7.2) or explicitly specialized (14.7.3) (both didn't happen in this case), the class template specialization is implicitly instantiated when the specialization is referenced in a context that requires a completely-defined object type or when the completeness of the class type affects the semantics of the program. [..] (in this case it does)
