@@ -79,8 +79,9 @@
           $('#document').animate({ // Hide any document loaded
             height:  0,
             opacity: 0
-          }, 500);          
-          $("html, body").animate({ scrollTop: 0 }, 500); // Restore any searchBox scroll to 0
+          }, 500);
+          $.data($('#searchBox')[0], "ignoreBoundariesAndScrollToStart", true); // Restore any searchBox scroll to 0
+          $("html, body").animate({ scrollTop: 0 }, 500); 
           kbase.loadNewRootNode (id); // Proceed to repopulate the map with the new root
           closeCallback = function () { // This ensures we're selecting the quicksearch bar text only when there's a selection
             $('#quicksearchBar').select(); // Select the text inside the quicksearch bar when finished
@@ -103,15 +104,29 @@
       element.css('position', 'relative'); // Set measures relative to the parent container
       $(window).on('scroll', function(event) {
           var scrollTop = $(window).scrollTop();
-          if ($('#document').height() > $('#searchBox').height() &&
-              (scrollTop + originalY + topMargin) < $('#document').height() - $('#searchBox').height()) { // If the document is tiny, don't scroll us (prevents a page overflow)          
+          // This is a complex check: if we were asked to restore the position to the top, no questions.
+          // Otherwise if the document is less than the searchbox and we're asked to scroll -> don't do it! There isn't enough space
+          // And also make sure that if the page scroll (plus our borders) is less than the document's height minus searchbox's height
+          // otherwise we might expand our page indefinitely causing a space overflow
+          if ($.data($('#searchBox')[0], "ignoreBoundariesAndScrollToStart") == true ||
+              ( $('#document').height() > $('#searchBox').height() &&
+               (scrollTop + originalY + topMargin) < $('#document').height() - $('#searchBox').height())) {
             element.stop (false, false) /* Ensures previous animations are executed too */.animate({
                 top: // Scroll of the window amount if it's more than our previous top
                     scrollTop < originalY ? 0 : scrollTop - originalY + topMargin
             }, 500);
+            if (element.offset().top <= originalY)
+              $.data($('#searchBox')[0], "ignoreBoundariesAndScrollToStart", false);
           }
       });
-      
+      $(window).resize(function(event) {
+        // This is an hack: when we're asked to resize the window, let CSS handle positioning themselves with height:100%
+        // for the document. After that we get that scrollHeight value and store it for potential transitions back and forth
+        $('#document').css('height', '100%');
+        var newDocumentHeight = $('#document')[0].scrollHeight;
+        $('#document').css('height', newDocumentHeight + 'px');      
+        $.data($('#document')[0], "scrollHeight", newDocumentHeight);
+      });
       $(document).ready(function(){$('#quicksearchBar').focus();}) // Focus on the search bar ASAP
     });
   </script>

@@ -53,12 +53,13 @@ function KBase (map) { // Call initializeMapWithRoot() to initialize a KBase whi
 
       // Enqueue the animation for the div's height to fit the entire content. This is necessary since scrollHeight
       // could not be calculated before. Now it's a valid value for the new document
+      var newHeight = $('#document')[0].scrollHeight;
       $('#document').animate({
-        height: $('#document')[0].scrollHeight,
+        height: newHeight,
         opacity: 1
       }, 500);
-      $.data($('#document')[0], "scrollHeight", $('#document')[0].scrollHeight); // Store this value, might be used later
-                                                                                 // if the same document is asked again
+      $.data($('#document')[0], "scrollHeight", newHeight); // Store this value, might be used later
+                                                            // if the same document is asked again
       $(this).dequeue(); // Continue with the next queued animation (the (*) just queued)
     });      
   }
@@ -156,7 +157,8 @@ function KBase (map) { // Call initializeMapWithRoot() to initialize a KBase whi
         opacity: 0
       }, 500);
     }
-    $("html, body").animate({ scrollTop: 0 }, 500); // Restore any searchBox scroll to 0
+    $.data($('#searchBox')[0], "ignoreBoundariesAndScrollToStart", true); // Restore any searchBox scroll to 0
+    $("html, body").animate({ scrollTop: 0 }, 500);  // And also the page scrollbars
     
     // Make this the new root node
     node.markAsSelected ();
