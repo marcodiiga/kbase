@@ -120,12 +120,14 @@
           }
       });
       $(window).resize(function(event) {
-        // This is an hack: when we're asked to resize the window, let CSS handle positioning themselves with height:100%
-        // for the document. After that we get that scrollHeight value and store it for potential transitions back and forth
-        $('#document').css('height', '100%');
-        var newDocumentHeight = $('#document')[0].scrollHeight;
-        $('#document').css('height', newDocumentHeight + 'px');      
-        $.data($('#document')[0], "scrollHeight", newDocumentHeight);
+        if ( parseInt($('#document').css('opacity')) === 1) { // The resize events to the document only apply if it is visible
+          // This is an hack: when we're asked to resize the window, let CSS handle positioning themselves with height:100%
+          // for the document. After that we get that scrollHeight value and store it for potential transitions back and forth
+          $('#document').css('height', '100%');
+          var newDocumentHeight = $('#document')[0].scrollHeight;
+          $('#document').css('height', newDocumentHeight + 'px');      
+          $.data($('#document')[0], "scrollHeight", newDocumentHeight);
+        }        
       });
       $(document).ready(function(){$('#quicksearchBar').focus();}) // Focus on the search bar ASAP
     });
