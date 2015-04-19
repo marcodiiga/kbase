@@ -1,0 +1,172 @@
+﻿<h1>Function templates</h1>
+Function templates are a useful feature in addition to class templates, however there are a few drawbacks and things to keep in mind when
+dealing with them.
+
+First: <b>function templates can't be partially specialized</b>, only fully specialized
+
+<pre><code class="cpp">
+template<class T> void fun();
+template<> void fun<double>();
+</code></pre>
+
+Almost the same effect of a partial specialization can be achieved by overloading
+
+<pre><code class="cpp">
+template<class T> void f( T );              // (a)
+template<class T> void f( int, T, double ); // (b)
+template<class T> void f( T* );             // (c)
+
+int main() {
+  int *var = nullptr;
+  f (var); // Calls (c)
+}
+</code></pre>
+
+<h2>Dimov/Abrahams - specializations don't overload</h2>
+
+One thing that ought to be remembered when mixing function templates with overloading and specialization is that <b>only the base templates overload</b> along with
+nontemplate functions
+
+<pre><code class="cpp">
+template<class T> void f( T );    // (a)
+template<> void f<int*> (int*);   // (b) specialization
+template<class T> void f( T* );   // (c) another function template
+
+int main() {
+  int *var = nullptr;
+  f (var); // Calls (c)
+}
+</code></pre>
+
+Unless the template is explicitly specialized (<code class="inline">f <int*>(var);</code>) the code above will call the <i>(c)</i> function template since the overload
+resolution process only takes the base templates into account.
+
+<h2>Member function templates</h2>
+When dealing with member function templates there are additional things to be aware of. A fully-specialized function template must abide by the ODR rule as any other
+nontemplate function, but due to how C++ is parsed and analyzed additional restrictions apply. The following code works just fine with a nontemplate function
+
+<div style="display:table;">
+  <table>
+    <th>
+      <td>class1.h</td>
+    </th>    
+    <tr>
+      <td>
+  <pre><code class="cpp">
+  class class1 {
+  public:
+    void function();
+  };
+  </code></pre>
+      </td>
+    </tr>
+  </table>
+</div>
+<div style="display:table;">
+  <table>
+    <th>
+      <td>class1.cpp</td>
+    </th>    
+    <tr>
+      <td>
+  <pre><code class="cpp">
+  #include "class1.h"
+  void class1::function() {}
+  </code></pre>
+      </td>
+    </tr>
+  </table>
+</div>
+<div style="display:table;">
+  <table>
+    <th>
+      <td>main.cpp</td>
+    </th>    
+    <tr>
+      <td>
+  <pre><code class="cpp">
+  #include "class1.h"
+  int main() {
+    class1 obj;
+    obj.function();
+  }
+  </code></pre>
+      </td>
+    </tr>
+  </table>
+</div>
+
+Anyway if there is a member function template the following won't work
+
+<div style="display:table;">
+  <table>
+    <th>
+      <td>class1.h</td>
+    </th>    
+    <tr>
+      <td>
+  <pre><code class="cpp">
+  class class1 {
+  public:
+    // Base function template
+    template<class T> void function() {}
+    // Specialization declaration
+    template<> void function<double>() {}
+  };
+  </code></pre>
+      </td>
+    </tr>
+  </table>
+</div>
+<div style="display:table;">
+  <table>
+    <th>
+      <td>class1.cpp</td>
+    </th>    
+    <tr>
+      <td>
+  <pre><code class="cpp">
+  #include "class1.h"
+  </code></pre>
+      </td>
+    </tr>
+  </table>
+</div>
+<div style="display:table;">
+  <table>
+    <th>
+      <td>main.cpp</td>
+    </th>    
+    <tr>
+      <td>
+  <pre><code class="cpp">
+  #include "class1.h"
+  int main() {
+    class1 obj;
+    obj.function<bool>();
+    obj.function<double>(); // Generates a linking error
+  }
+  </code></pre>
+      </td>
+    </tr>
+  </table>
+</div>
+
+Moving the specialization in the cpp source file doesn't solve the problem either. The reason lies in §14.7.3/3
+
+<blockquote>
+[...] The definition of a class or class template shall precede the declaration of an explicit specialization for a member template of the class or class template. [...]
+</blockquote>
+
+i.e. the explicit specialization must necessarily be put after the class definition
+<pre><code class="cpp">
+class class1 {
+public:
+  template<class T> void function() {}   // Base function template  
+};
+
+template<> inline void class1::function<double>() {}  // Specialization declaration
+</code></pre>
+
+Since the fully specialized function template is a first-class citized for the ODR, the <pre class="inline"><code>inline</code></pre> keyword is actually needed (otherwise the definition might as 
+well be moved in the cpp file altogether).
