@@ -38,7 +38,7 @@ int main() {
 }
 </code></pre>
 
-Unless the template is explicitly specialized (<code class="inline">f <int*>(var);</code>) the code above will call the <i>(c)</i> function template since the overload
+Unless the template is explicitly specialized (<pre class="inline"><code>f <int*>(var);</code></pre>) the code above will call the <i>(c)</i> function template since the overload
 resolution process only takes the base templates into account.
 
 <h2>Member function templates</h2>
