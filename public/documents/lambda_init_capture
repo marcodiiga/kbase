@@ -1,4 +1,4 @@
-<h1>Lambda init-capture</h1>
+ï»¿<h1>Lambda init-capture</h1>
 A C++11+ lambda defines a <a href="http://en.wikipedia.com/wiki/Closure_(computer_science)">closure</a>. In its <i>capture-list</i> (i.e. not a <i>capture-default expression</i>)
 <i>captures</i> can be specified
 <pre><code>int k = 23;
@@ -11,14 +11,14 @@ dd ();
 </code></pre>
 
 A <i>capture</i> is a direct initialized data member of the lambda (they're direct-initialized from the corresponding entities captured by value or references to the entities objects if captured
-by reference - §5.1.2/p15)
+by reference - Â§5.1.2/p15)
 <pre><code>Test obj1(22);
 auto dd = [obj1] () { // This data member is direct-initialized Test lambda_scope_obj1(obj1)
                       // Calls a copy constructor if available
 };
 dd ();
 </code></pre>
-or lambda data members initialized from <i>init-captures</i>. These last data members can provide initialization to lambda members since §5.1.2/p11
+or lambda data members initialized from <i>init-captures</i>. These last data members can provide initialization to lambda members since Â§5.1.2/p11
 <blockquote>An init-capture behaves as if it declares and explicitly captures a variable of the form "auto init-capture ;" whose declarative region is the lambda-expression's compound-statement, [..]</blockquote>
 
 This means undeclared variables in the outer scope are fine within the lambda if linked to init-capture initialization
