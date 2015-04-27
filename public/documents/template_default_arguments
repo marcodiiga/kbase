@@ -1,7 +1,6 @@
 <h1>Default template parameters</h1>
 Default template arguments can be specified in the template parameter list
-<pre><code class="cpp">
-template< typename T1 = int, 
+<pre><code class="cpp">template< typename T1 = int, 
           typename T2 = long, 
           typename T3 = std::string >
 struct struct_with_default_types {};
@@ -18,8 +17,7 @@ However there are techniques which can mimic the intended behavior.
 <h2>Change a subset of default arguments with 'using'</h2>
 The <pre class="inline"><code class="cpp">using</code></pre> directive in the example below allows to leave some arguments 
 defaulted while changing others at will
-<pre><code class="cpp">
-#include <string>
+<pre><code class="cpp">#include <string>
 #include <utility>
 
 struct default_type {};
@@ -60,8 +58,7 @@ int main() {
 <br/>
 <h2>Change a subset of default arguments by recursively instantiating different templates</h2>
 Another workaround to the issue could be recursively instantiating a template with the desired set of arguments
-<pre><code class="cpp">
-#include <string>
+<pre><code class="cpp">#include <string>
 #include <iostream>
 #include <typeinfo>
 
@@ -101,8 +98,7 @@ whatever argument the user chose will be instantiated since:
 <h2>Change a subset of default arguments with 'tuple_element_t'</h2>
 Another trick could be to create at compile-time a tuple with the default arguments of the original template and get the N-th type with the C++14 function <pre class="inline"><code class="cpp">tuple_element_t</code></pre>
 
-<pre><code class="cpp">
-template< typename T1 = int, 
+<pre><code class="cpp">template< typename T1 = int, 
           typename T2 = long, 
           typename T3 = std::string >
 struct struct_with_default_types {

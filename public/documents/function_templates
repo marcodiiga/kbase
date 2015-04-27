@@ -4,15 +4,13 @@ dealing with them.
 
 First: <b>function templates can't be partially specialized</b>, only fully specialized
 
-<pre><code class="cpp">
-template<class T> void fun();
+<pre><code class="cpp">template<class T> void fun();
 template<> void fun<double>();
 </code></pre>
 
 Almost the same effect of a partial specialization can be achieved by overloading
 
-<pre><code class="cpp">
-template<class T> void f( T );              // (a)
+<pre><code class="cpp">template<class T> void f( T );              // (a)
 template<class T> void f( int, T, double ); // (b)
 template<class T> void f( T* );             // (c)
 
@@ -27,8 +25,7 @@ int main() {
 One thing that ought to be remembered when mixing function templates with overloading and specialization is that <b>only the base templates overload</b> along with
 nontemplate functions
 
-<pre><code class="cpp">
-template<class T> void f( T );    // (a)
+<pre><code class="cpp">template<class T> void f( T );    // (a)
 template<> void f<int*> (int*);   // (b) specialization
 template<class T> void f( T* );   // (c) another function template
 
@@ -159,8 +156,7 @@ Moving the specialization in the cpp source file doesn't solve the problem eithe
 </blockquote>
 
 i.e. the explicit specialization must necessarily be put after the class definition
-<pre><code class="cpp">
-class class1 {
+<pre><code class="cpp">class class1 {
 public:
   template<class T> void function() {}   // Base function template  
 };
