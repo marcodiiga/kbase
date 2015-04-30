@@ -23,7 +23,8 @@ or lambda data members initialized from <i>init-captures</i>. These last data me
 
 This means undeclared variables in the outer scope are fine within the lambda if linked to init-capture initialization
 <pre><code>auto dd = [r = 22] () {
-    r = 23; // Error - either mark this lambda as mutable or capture by reference
+    // Error - either mark this lambda as mutable or capture by reference
+    r = 23;
 };
 </code></pre>
 Notice that lambdas are function objects - the intended use is to produce the same result every time they're called (on the line: no global states): that explains the error requiring <pre class="inline"><code>mutable</code></pre> or
@@ -32,7 +33,8 @@ the by-reference capture.
 The fact that init-captures declares <pre class="inline"><code>auto varName</code></pre> variables might require some attention when dealing with uniform initialization, e.g.
 <pre><code>std::vector<int> v(500, 0);
 // v has size 500
-auto dd = [ v = {std::move(v)} ]() { // Wrong - std::initializer_list<std::vector<int>> v = {move(v)};
+// The following is interpreted as std::initializer_list<std::vector<int>> v = {move(v)};
+auto dd = [ v = {std::move(v)} ]() {
     // v has size 1
 };
 </code></pre>
