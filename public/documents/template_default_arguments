@@ -96,7 +96,7 @@ whatever argument the user chose will be instantiated since:
 </blockquote>
 <br/>
 <h2>Change a subset of default arguments with 'tuple_element_t'</h2>
-Another trick could be to create at compile-time a tuple with the default arguments of the original template and get the N-th type with the C++14 function <pre class="inline"><code class="cpp">tuple_element_t</code></pre>
+Another trick could be to create at compile-time a tuple with the default arguments of the original template and get the N-th type with the C++14 alias template <pre class="inline"><code class="cpp">tuple_element_t</code></pre>
 
 <pre><code class="cpp">template< typename T1 = int, 
           typename T2 = long, 
