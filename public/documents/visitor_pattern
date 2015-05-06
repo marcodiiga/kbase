@@ -1,0 +1,68 @@
+<h1>Visitor pattern</h1>
+
+The <a href="http://en.wikipedia.org/wiki/Visitor_pattern">visitor pattern</a> is a common one used to "visit" different objects without altering their structure. It avoids type switches
+
+<pre><code class="cpp">BaseObject *ptr = getDerivedObject();
+if(dynamic_cast<DerivedObject1*>(ptr))
+  doSomethingOnDerivedObject1(ptr);
+else if (dynamic_cast<DerivedObject2*>(ptr))
+  doSomethingOnDerivedObject2(ptr);
+// ...
+</code></pre>
+
+and also avoids to pollute the interface of the class objects involved. The skeleton and main structure of the pattern is the following
+
+<pre><code class="cpp">class VisitorClass;
+
+class Visitable {
+public:
+    virtual ~Visitable(){};
+
+    virtual void accept(VisitorClass &visitor) = 0;
+};
+
+class DerivedObject1 : public Visitable {
+  void accept(VisitorClass &visitor) override
+  { visitor.visit(*this); }
+};
+
+class DerivedObject2 : public Visitable {
+  void accept(VisitorClass &visitor) override
+  { visitor.visit(*this); }
+};
+
+class DerivedObject3 : public Visitable {
+  void accept(VisitorClass &visitor) override
+  { visitor.visit(*this); }
+};
+
+class VisitorClass {
+public:
+  virtual void visit(DerivedObject1 &obj) {
+    // Do something for DerivedObject1...
+  }
+
+  virtual void visit(DerivedObject2 &obj) {
+    // Do something for DerivedObject2...
+  }
+
+  virtual void visit(DerivedObject3 &obj) {
+    // Do something for DerivedObject3...
+  }
+};
+</code></pre>
+
+At this point it would be sufficient to just call <pre class="inline"><code class="cpp">accept()</code></pre>
+
+<pre><code class="cpp">VisitorClass visitor;
+BaseObject *ptr = getDerivedObject();
+ptr->accept(visitor);
+</code></pre>
+
+A big maintainability plus is achieved in case a new derived class is added. If a type switch as in the first code snippet was present,
+it would have to be updated with the new derived class. If multiple type switches were present, they would all have to be updated with
+the new derived class added. This is prone to maintainability issues while with the visitor pattern only a new <pre class="inline"><code class="cpp">visit()</code></pre>
+method should be added to the visitor class.
+
+An alternative is to have the <pre class="inline"><code class="cpp">visit()</code></pre> function pure virtual and have it reimplemented
+in specific visitors.
