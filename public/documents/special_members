@@ -1,0 +1,5 @@
+<h1>Special Members</h1>
+
+Starting from C++11 special members (e.g. move constructor, move assignment, etc..) are provided by the compiler under particular circumstances<br/><br/>
+<img style="height:300px; box-shadow: 10px 10px 5px #888888;" src="documents/imgs/special_members.png"/><br/><br/>
+Notice that defaulted members can still reference deleted members and thus be in turn marked as deleted.
