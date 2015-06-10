@@ -1,5 +1,5 @@
 <h1>Special Members</h1>
 
 Starting from C++11 <a href="http://en.cppreference.com/w/cpp/language/member_functions#Special_member_functions">special members</a> (e.g. move constructor, move assignment, etc..) are provided by the compiler under particular circumstances<br/><br/>
-<img style="height:300px; box-shadow: 10px 10px 5px #888888;" src="documents/imgs/special_members.png"/><br/><br/>
+<img style="height:300px; width:900px; box-shadow: 10px 10px 5px #888888;" src="documents/imgs/special_members.png"/><br/><br/>
 Notice that defaulted members can still reference deleted members or <a href="http://en.cppreference.com/w/cpp/language/default_constructor#Deleted_implicitly-declared_default_constructor">fall under other deleting conditions</a> and thus be in turn marked as deleted.
