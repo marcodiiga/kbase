@@ -1,0 +1,48 @@
+<h1>Fold expressions</h1>
+Fold expressions are a C++17 feature that bring a new way to unpack variadic parameters alongside operators. The syntax is
+
+<pre><code class="cpp">( parameter_pack OP ... )
+( ... OP parameter_pack )
+( parameter_pack OP ... OP init_value )
+( init_value OP ... OP parameter_pack )</code></pre>
+
+An example of a normal template parameter pack expansion and C++17 fold expression expansion is shown next
+
+<pre><code class="cpp">#include <iostream>
+#include <utility>
+#include <tuple>
+
+// Returns a tuple applying f to every args
+template<typename Fun, typename... T>
+auto for_each_execute_f_return_tuple(Fun&& f, T&&... args)
+{
+    // NOT a fold expression, template parameter pack expansion
+    return std::make_tuple( f(std::forward<T>(args)) ... );
+}
+
+// Executes f on each one of args, drops the result and return the last one
+template<typename Fun, typename... T>
+auto for_each_execute_f_return_last_element(Fun&& f, T&&... args)
+{
+    // C++17 Fold Expression - expanded as f(argument0), f(argument1), ... (comma operator)
+    return (f(std::forward<T>(args)), ...);
+}
+
+double squareVal(double val) {
+    std::cout << "Calculating square for value " << val << std::endl;
+    return val*val;
+}
+
+int main() {
+    double myVal = 34.0, myVal2 = 3.0;
+    
+    double result1, result2;
+    std::tie(result1, result2) = 
+        for_each_execute_f_return_tuple(&squareVal, myVal, myVal2);
+    std::cout << "[" << result1 << "," << result2 << "]" << std::endl; // tuple [1156, 9]
+    
+    double result3;
+    result3 = for_each_execute_f_return_last_element(&squareVal, myVal, myVal2);
+    std::cout << result3 << std::endl; // 9
+}</code></pre>
+
