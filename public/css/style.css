@@ -85,7 +85,7 @@ div#document { /* The document containing div */
   /*border: 2px solid red;*/
   height: 0px; /* This div starts with 0 height and gets resized by js events */
   opacity: 0;  /* Also starts invisible */
-  overflow-x: hidden;
+  overflow-x: auto;
   overflow-y: auto;
 }
 
