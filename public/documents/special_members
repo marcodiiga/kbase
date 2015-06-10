@@ -1,5 +1,20 @@
 <h1>Special Members</h1>
 
-Starting from C++11 special members (e.g. move constructor, move assignment, etc..) are provided by the compiler under particular circumstances<br/><br/>
+Starting from C++11 <a href="http://en.cppreference.com/w/cpp/language/member_functions#Special_member_functions">special members</a> (e.g. move constructor, move assignment, etc..) are provided by the compiler under particular circumstances<br/><br/>
 <img style="height:300px; box-shadow: 10px 10px 5px #888888;" src="documents/imgs/special_members.png"/><br/><br/>
-Notice that defaulted members can still reference deleted members and thus be in turn marked as deleted.
+Notice that defaulted members can still reference deleted members or <a href="http://en.cppreference.com/w/cpp/language/default_constructor#Deleted_implicitly-declared_default_constructor">fall under other deleting conditions</a> and thus be in turn marked as deleted.
+
+Also notice that <i>not declared</i> is different from <i>deleted</i>. In the case of move constructor/move assignment operator that should be marked as deleted, they're instead marked as not declared at all. This ensures a fallback (instead of an error) to the copy constructor in case someone tries to move the class
+
+<pre><code class="cpp">class Test {
+public:
+  Test() = default;
+  Test(const Test& m) { std::cout << "copy ctor"; } // Copy constructor
+  // Move constructor is 'not declared' (it is different from 'deleted')
+};
+
+int main() {
+   Test obj;
+   Test obj2(std::move(obj)); // Falls back on copy constructor
+}
+</code></pre>
