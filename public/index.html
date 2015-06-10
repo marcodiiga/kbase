@@ -125,8 +125,10 @@
           // for the document. After that we get that scrollHeight value and store it for potential transitions back and forth
           $('#document').css('height', '100%');
           var newDocumentHeight = $('#document')[0].scrollHeight;
-          $('#document').css('height', newDocumentHeight + 'px');      
+          var newDocumentWidth = $('#document')[0].scrollWidth;
+          $('#document').css('height', newDocumentHeight + 'px', 'width', newDocumentWidth + 'px');      
           $.data($('#document')[0], "scrollHeight", newDocumentHeight);
+          $.data($('#document')[0], "scrollWidth", newDocumentWidth);
         }        
       });
       $(document).ready(function(){$('#quicksearchBar').focus();}) // Focus on the search bar ASAP
